@@ -18,6 +18,10 @@ function FormMi(option) {
 	this.__errorClass = 'errorClass';
 	this.__successClass = 'successClass';
 	this.__elementState = false; //状态
+	this.__inputType = {
+		text: 1,
+		password: 1
+	};
 	this.__rulesList = {
 		email: /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/
 		, mobile: /^(((13[0-9]{1})|(15[0-9]{1}))+\d{8})$/
@@ -54,7 +58,7 @@ FormMi.prototype = {
 	checkRules: function () {
 
 	},
-	bind: function (FormMi, element, option) {
+	bindRules:function (option) {
 		var rules;
 		// console.log('typeof option.rules:', typeof option.rules);
 		//正则
@@ -66,6 +70,21 @@ FormMi.prototype = {
 			rules = option.rules === null ? '' : option.rules;
 			// console.log('other:', rules);
 		}
+		return rules;
+	},
+	isInput: function (type) {
+		console.log('this.__inputType[type]:', this.__inputType[type]);
+		return !!this.__inputType[type];
+	},
+	bindInput: function (FormMi, element, option) {
+		var rules = FormMi.bindRules(option);
+		//正则
+		// if (option.rules && typeof option.rules === 'string' && typeof this.__rulesList[option.rules] !== 'undefined') {
+		// 	rules = this.__rulesList[option.rules];
+		// } else {
+		// 	//其他,字符串
+		// 	rules = option.rules === null ? '' : option.rules;
+		// }
 		console.log('rules:', rules);
 		$(element).on(
 			{
@@ -78,41 +97,103 @@ FormMi.prototype = {
 						}
 					}
 
-					if (!option.state && typeof option.callback === 'function') {
+					if (option.state && typeof option.success === 'function') {
+						option.success(element)
+					}
+
+					if (!option.state && typeof option.fail === 'function') {
+						option.fail(element)
+					}
+
+					if (typeof option.callback === 'function') {
 						option.callback(element, option.state);
 					}
-					console.log('option.state:', option.state, element.name);
+
+					console.log('blur:', option.state, element.name);
 				},
 				focus: function (e) {
-					if (option.required && !option.state) {
-						if (rules) {
-							this.value.match(rules) ? $(element).attr('data-state', FormMi.__successClass) : $(element).attr('data-state', FormMi.__errorClass);
-							option.state = $(element).attr('data-state') === 'successClass' ? !!1 : !!0;
-							// return rules.search(this.value) ? $(element).attr('data-state',FormMi.__successClass) : $(element).attr('data-state',FormMi.__errorClass);
+					if(option.focus){
+						if (option.required && !option.state) {
+							if (rules) {
+								this.value.match(rules) ? $(element).attr('data-state', FormMi.__successClass) : $(element).attr('data-state', FormMi.__errorClass);
+								option.state = $(element).attr('data-state') === 'successClass' ? !!1 : !!0;
+								// return rules.search(this.value) ? $(element).attr('data-state',FormMi.__successClass) : $(element).attr('data-state',FormMi.__errorClass);
+							}
+						}
+
+						if (option.state && typeof option.success === 'function') {
+							option.success(element)
+						}
+
+						if (!option.state && typeof option.fail === 'function') {
+							option.fail(element)
+						}
+
+						if (typeof option.callback === 'function') {
+							option.callback(element, option.state);
+						}
+
+						console.log('focus:option.state:', option.state, element.name);
+					}else{
+						if(!option.state){
+							$(element).attr('data-state','');
 						}
 					}
-					if (!option.state && typeof option.callback === 'function') {
-						option.callback(element, option.state);
-					}
-					console.log('option.state:', option.state, element.name);
-					// console.log('获得焦点', this.name);
 				},
 				keyup: function (e) {
+					if(option.change){
+						if (option.required && !option.state) {
+							if (rules) {
+								this.value.match(rules) ? $(element).attr('data-state', FormMi.__successClass) : $(element).attr('data-state', FormMi.__errorClass);
+								option.state = $(element).attr('data-state') === 'successClass' ? !!1 : !!0;
+								// return rules.search(this.value) ? $(element).attr('data-state',FormMi.__successClass) : $(element).attr('data-state',FormMi.__errorClass);
+							}
+						}
+
+						if (option.state && typeof option.success === 'function') {
+							option.success(element)
+						}
+
+						if (!option.state && typeof option.fail === 'function') {
+							option.fail(element)
+						}
+
+						if (typeof option.callback === 'function') {
+							option.callback(element, option.state);
+						}
+					}else{
+						//$(element).attr('data-state','');
+					}
 					console.log(this.value);
 				}
 			}
 		)
-
 	},
 	bindEvent: function () {
 		var FormMi = this;
-		var rObj = [];
 
 		$.each(FormMi.__rules, function (key, value) {
 			// console.log(value,'key:', key);
 			// console.log(FormMi.__formDOM[key], !!FormMi.__formDOM[key]);
 			if (!!FormMi.__formDOM[key]) {
-				FormMi.bind(FormMi, FormMi.__formDOM[key], value)
+				//并入dom元素
+				value.element = FormMi.__formDOM[key];
+
+				// 判断类型
+				console.log('type', value.element.type);
+				console.log('isInput', FormMi.isInput(value.element.type));
+				if (FormMi.isInput(value.element.type)) {
+					//判断focus 值
+					value.focus = !!value.focus;
+					//绑定实时监测?
+					console.log('typeof value.change:', typeof value.change);
+					value.change = typeof value.change !=='undefined' ? value.change : !!1;
+
+					FormMi.bindInput(FormMi, FormMi.__formDOM[key], value)
+				}
+
+				// console.log('isInput',!!FormMi.isInput(value.element.type));
+
 			}
 		});
 
@@ -160,6 +241,9 @@ FormMi.prototype = {
 	//重置方法
 	reset: function () {
 
+	},
+	submit: function () {
+
 	}
 	//
 };
@@ -180,16 +264,25 @@ var v = new FormMi({
 			name: 'name',
 			required: true,
 			rules: 'name',
+			focus: false,//获得焦点验证=>默认值
+			change:false, //实时验证
+			success: function (ele) {
+
+			},
+			fail: function (ele) {
+
+			},
 			callback: function (state) {
-				console.log(state);
+				// console.log(state);
 			}
 		},
 		{
 			name: 'form__mobile',
 			required: true,
 			rules: 'mobile',
+			// focus: true,
 			callback: function (state) {
-				console.log(state);
+				// console.log(state);
 			}
 		},
 		{
@@ -197,10 +290,16 @@ var v = new FormMi({
 			required: true,
 			rules: /^(\d{6})$/,
 			callback: function (state) {
-				console.log(state);
+				// console.log(state);
 			}
 		}
-	]
+	],
+	submit: function (state) {
+		//验证全部表单,
+	}
 });
 
+v.submit(function () {
+
+});
 console.log('xxxxx', v);
