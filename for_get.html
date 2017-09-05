@@ -10,6 +10,9 @@
             margin: 0 auto;
             width: 1000px;
         }
+        input:focus{
+            outline: 1px solid transparent!important;
+        }
         [data-state="successClass"]{
             border:1px solid seagreen;
         }
@@ -21,7 +24,7 @@
 <body>
     <div id="form" class="main">
         <div class="form form__reg">
-            <form id="form_forget" name="form_forget" method="post" action="">
+            <form id="form_forget" name="form_forget" method="post" >
                 <div class="form__row">
                     <label for="form__user_name" class="form__label">用户名</label>
                     <input name="name" id="form__user_name" type="text" class="form__input" placeholder="请输入公司全称，4 ~ 50字，数字、英文或中文">
@@ -32,7 +35,7 @@
                 </div>
                 <div class="form__row">
                     <label for="form__code" class="form__label">短信验证码</label>
-                    <input name="form__code" id="form__code" type="text" class="form__input" placeholder="请输入手机验证码">
+                    <input name="form__code" id="form__code" type="text" class="form__input" placeholder="请输入短信验证码">
                     <button class="btn-timeout"></button>
                 </div>
                 <div class="form__row">
@@ -56,7 +59,7 @@
     <!--<script type="text/javascript" src="js/validate.js"></script>-->
 <script type="text/javascript" src="js/SMValidator.min.js"></script>
 <!--<script type="text/javascript" src="js/index.js"></script>-->
-    <!--<script type="text/javascript" src="js/mvForm.js"></script>-->
+    <script type="text/javascript" src="js/mvForm.js"></script>
 <script type="text/javascript">
 /*
 	var validator = new FormValidator('form_forget', [

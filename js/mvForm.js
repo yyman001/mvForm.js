@@ -58,7 +58,7 @@ FormMi.prototype = {
 	checkRules: function () {
 
 	},
-	bindRules:function (option) {
+	bindRules: function (option) {
 		var rules;
 		// console.log('typeof option.rules:', typeof option.rules);
 		//正则
@@ -112,7 +112,7 @@ FormMi.prototype = {
 					console.log('blur:', option.state, element.name);
 				},
 				focus: function (e) {
-					if(option.focus){
+					if (option.focus) {
 						if (option.required && !option.state) {
 							if (rules) {
 								this.value.match(rules) ? $(element).attr('data-state', FormMi.__successClass) : $(element).attr('data-state', FormMi.__errorClass);
@@ -134,14 +134,14 @@ FormMi.prototype = {
 						}
 
 						console.log('focus:option.state:', option.state, element.name);
-					}else{
-						if(!option.state){
-							$(element).attr('data-state','');
+					} else {
+						if (!option.state) {
+							$(element).attr('data-state', '');
 						}
 					}
 				},
 				keyup: function (e) {
-					if(option.change){
+					if (option.change) {
 						if (option.required && !option.state) {
 							if (rules) {
 								this.value.match(rules) ? $(element).attr('data-state', FormMi.__successClass) : $(element).attr('data-state', FormMi.__errorClass);
@@ -161,7 +161,7 @@ FormMi.prototype = {
 						if (typeof option.callback === 'function') {
 							option.callback(element, option.state);
 						}
-					}else{
+					} else {
 						//$(element).attr('data-state','');
 					}
 					console.log(this.value);
@@ -183,11 +183,13 @@ FormMi.prototype = {
 				console.log('type', value.element.type);
 				console.log('isInput', FormMi.isInput(value.element.type));
 				if (FormMi.isInput(value.element.type)) {
+					//写入lock值 => 主要是给验证成功后,锁死,则不需要变动?
+					value.focus = !!0;
 					//判断focus 值
 					value.focus = !!value.focus;
 					//绑定实时监测?
 					console.log('typeof value.change:', typeof value.change);
-					value.change = typeof value.change !=='undefined' ? value.change : !!1;
+					value.change = typeof value.change !== 'undefined' ? value.change : !!1;
 
 					FormMi.bindInput(FormMi, FormMi.__formDOM[key], value)
 				}
@@ -208,18 +210,26 @@ FormMi.prototype = {
 		 })
 		 });*/
 
-		/*FormMi.__$submitDOM.on('click',function (e) {
-		 console.log(FormMi.__formType);
-		 });*/
+		/*FormMi.__$submitDOM.on('click', function (e) {
+			console.log('********************');
+		});*/
 
 		FormMi.__$formDOM.on('submit', function (e) {
 			console.log("this.__formType", FormMi.__formType);
+
+			// FormMi.__state = !errorLength.length;
+			FormMi.__state = FormMi.checkInputState();
+
 			if (FormMi.__formType === 'ajax') {
 				e.preventDefault();
-				//return false;
+				//状态全部通过
+				if (FormMi.__state) {
+					// FormMi.submit()
+				}
 			} else {
 				return true;
 			}
+			return false;
 		});
 
 		//阻止表单回车提交
@@ -238,14 +248,34 @@ FormMi.prototype = {
 	parseRules: function () {
 
 	},
+	setInputState: function (object) {
+		object.element.setAttribute('data-state', object.state ? 'successClass' : 'errorClass');
+	},
+	getErrorInput: function () {
+		var FormMi = this;
+		var errorInput = [];
+		for (var i = 0, l = FormMi.__rules.length; i < l; i++) {
+			if (!FormMi.__rules[i].state) {
+				errorInput.push(FormMi.__rules[i]);
+				FormMi.setInputState(FormMi.__rules[i]);
+			}
+		}
+		console.log('errorLength:', errorInput);
+		return errorInput;
+	},
+	//检查input的状态值
+	checkInputState: function () {
+		return !this.getErrorInput().length;
+	},
 	//重置方法
 	reset: function () {
 
 	},
-	submit: function () {
-
+	submit: function (fn) {
+		if (typeof fn === 'function') {
+			fn(this.__state);
+		}
 	}
-	//
 };
 
 
@@ -256,7 +286,7 @@ var v = new FormMi({
 	formType: '', //提交类型,默认是异步,阻止表单提交的
 	action: '', //发送地址 默认空
 	method: 'post', //发送类型,默认post
-	// submitBtn: '.button--submit',
+	submitBtn: '.button--submit',
 	errorClass: '', //默认 errorClass
 	successClass: '', //默认 successClass
 	rules: [
@@ -265,7 +295,7 @@ var v = new FormMi({
 			required: true,
 			rules: 'name',
 			focus: false,//获得焦点验证=>默认值
-			change:false, //实时验证
+			change: false, //实时验证
 			success: function (ele) {
 
 			},
@@ -299,7 +329,8 @@ var v = new FormMi({
 	}
 });
 
-v.submit(function () {
-
+v.submit(function (state) {
+	console.log('/*表单验证*/', state);
 });
+
 console.log('xxxxx', v);
