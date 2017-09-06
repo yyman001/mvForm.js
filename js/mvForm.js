@@ -239,6 +239,7 @@ FormMi.prototype = {
 				e.preventDefault();
 				//状态全部通过
 				if (FormMi.__state) {
+
 					// FormMi.submit()
 				}
 			} else {
@@ -264,6 +265,17 @@ FormMi.prototype = {
 
 	},
 
+	//element,type 1/0
+	setDomState:function (parameter) {
+		var FormMi = this;
+		$.each(FormMi.__rules, function (index, object) {
+			console.log(object);
+			if(object.name === parameter.name){
+				object.state = parameter.state;
+				FormMi.setInputClass(object)
+			}
+		});
+	},
 	setTargetState: function (object) {
 		object.state = object.element.getAttribute('data-state') === this.__successClass ? !!1 : !!0;
 	},
@@ -291,6 +303,26 @@ FormMi.prototype = {
 		// console.log('errorLength:', errorInput);
 		return errorInput;
 	},
+	/*
+	* return {}
+	* */
+	getInputValue:function () {
+		var inputValue = {};
+		$.each(this.__rules, function (index, object) {
+			console.log(object.element.value);
+			if(object.dataFieldName){
+				inputValue[object.dataFieldName] = object.element.value;
+			}else{
+				inputValue[object.name] = object.element.value;
+			}
+
+			// if($.trim(object.element.value)){
+			// 	object.element.value
+			// }
+		});
+		console.log('inputValue:', inputValue);
+		return inputValue;
+	},
 	//检查input的状态值
 	checkInputState: function () {
 		return !this.getErrorInput().length;
@@ -298,6 +330,22 @@ FormMi.prototype = {
 	//重置方法
 	reset: function () {
 
+	},
+	sendData:function () {
+		var data = this.getInputValue(); //获得验证成功后的数据
+
+		    $.ajax({
+		       type: "POST",
+		       url: this.__action,
+		       data: data,
+		       cache: false,
+		       dataType: "jsonp",
+		       beforeSend:function(){}
+		    }).done(function(data){
+
+		    }).fail(function(){
+
+		    });
 	},
 	submit: function (fn) {
 		if (typeof fn === 'function') {

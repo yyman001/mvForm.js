@@ -54,10 +54,16 @@
 <script type="text/javascript" src="js/jquery.min.js"></script>
 <script type="text/javascript" src="js/mvForm.js"></script>
 <script type="text/javascript">
+    function ck_user() {
+	    console.log('检测用户:')
+        return $.post('https://www.easy-mock.com/mock/59084bef7a878d73716e6641/all/check_user_name',{
+
+        })
+    }
 	var v = new FormMi({
 		form: '#form_forget',
 		formType: '', //提交类型,默认是异步,阻止表单提交的
-		action: '', //发送地址 默认空
+		action: 'https://www.easy-mock.com/mock/59084bef7a878d73716e6641/all/post/forget', //发送地址 默认空
 		method: 'post', //发送类型,默认post
 		submitBtn: '.button--submit',
 		errorClass: '', //默认 errorClass
@@ -65,12 +71,24 @@
 		rules: [
 			{
 				name: 'name',
+                dataFieldName:'user_name', //发送ajax的字段名
 				required: true,
-				rules: 'name',
+				rules: /\w{2,20}/,
 				focus: false,//获得焦点验证=>默认值
-				change: false, //实时验证
+				//change: false, //实时验证
+                ajaxUrl:'https://www.easy-mock.com/mock/59084bef7a878d73716e6641/all/check_user_name',
 				success: function (ele) {
+					ck_user()
+                        .then(function (req) {
+                            if(req.data.state){
+	                            v.setDomState({name:'name',state:1}); //成功
+                            }else{
+	                            v.setDomState({name:'name',state:0}); //失败
+                            }
+                        })
+                        .fail(function (req) {
 
+                        });
 				},
 				fail: function (ele) {
 
