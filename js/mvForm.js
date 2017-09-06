@@ -18,6 +18,7 @@ function FormMi(option) {
 	this.__errorClass = 'errorClass';
 	this.__successClass = 'successClass';
 	this.__elementState = false; //状态
+	this.__sendData = null; //外部添加数据
 	this.__inputType = {
 		text: 1,
 		password: 1
@@ -44,6 +45,7 @@ FormMi.prototype = {
 		this.__$submitDOM = !!this.__option.submitBtn ? $(this.__option.submitBtn) : null;
 		this.__formType = this.__option.formType === 'form' ? 'form' : 'ajax';
 		// this.__rules = $.extend({}, this.__rules, this.__option.rules);
+		this.__action = this.__option.action;
 		this.__rules = this.__option.rules;
 		this.__formDOM = this.__$formDOM[0];
 		this.getChildDOM();
@@ -94,9 +96,9 @@ FormMi.prototype = {
 						if (!option.change || !option.state) {
 							if (rules) { //有验证表达式
 								// this.value.match(rules) ? $(element).attr('data-state', FormMi.__successClass) : $(element).attr('data-state', FormMi.__errorClass);
-								FormMi.setInputState(this.value.match(rules),option);
+								FormMi.setInputState(this.value.match(rules), option);
 							} else {
-								FormMi.setInputState($.trim(this.value),option);
+								FormMi.setInputState($.trim(this.value), option);
 								// !!$.trim(this.value) ? $(element).attr('data-state', FormMi.__successClass) : $(element).attr('data-state', FormMi.__errorClass);
 							}
 							FormMi.setTargetState(option);
@@ -126,9 +128,9 @@ FormMi.prototype = {
 						if (!option.change || !option.state) {
 							if (rules) { //有验证表达式
 								// this.value.match(rules) ? $(element).attr('data-state', FormMi.__successClass) : $(element).attr('data-state', FormMi.__errorClass);
-								FormMi.setInputState(this.value.match(rules),option);
+								FormMi.setInputState(this.value.match(rules), option);
 							} else {
-								FormMi.setInputState($.trim(this.value),option);
+								FormMi.setInputState($.trim(this.value), option);
 								// !!$.trim(this.value) ? $(element).attr('data-state', FormMi.__successClass) : $(element).attr('data-state', FormMi.__errorClass);
 							}
 							FormMi.setTargetState(option);
@@ -158,9 +160,9 @@ FormMi.prototype = {
 
 						// if ($.trim(this.value)) {
 						if (rules) { //有验证表达式
-							FormMi.setInputState(this.value.match(rules),option);
+							FormMi.setInputState(this.value.match(rules), option);
 						} else {
-							FormMi.setInputState($.trim(this.value),option);
+							FormMi.setInputState($.trim(this.value), option);
 						}
 						FormMi.setTargetState(option);
 						// }
@@ -239,8 +241,8 @@ FormMi.prototype = {
 				e.preventDefault();
 				//状态全部通过
 				if (FormMi.__state) {
-
-					// FormMi.submit()
+					//FormMi.submit();
+					FormMi.sendData();
 				}
 			} else {
 				return true;
@@ -265,12 +267,20 @@ FormMi.prototype = {
 
 	},
 
+	//合并发送数据
+	setDate: function ( object ) {
+		if(!$.isEmptyObject(object)){
+			this.__sendData = object;
+			// this.__sendData = $.extend({},this.__sendData,object)
+		}
+		console.log('this.__sendData:', this.__sendData);
+	},
 	//element,type 1/0
-	setDomState:function (parameter) {
+	setDomState: function (parameter) {
 		var FormMi = this;
 		$.each(FormMi.__rules, function (index, object) {
 			console.log(object);
-			if(object.name === parameter.name){
+			if (object.name === parameter.name) {
 				object.state = parameter.state;
 				FormMi.setInputClass(object)
 			}
@@ -304,15 +314,15 @@ FormMi.prototype = {
 		return errorInput;
 	},
 	/*
-	* return {}
-	* */
-	getInputValue:function () {
+	 * return {}
+	 * */
+	getInputValue: function () {
 		var inputValue = {};
 		$.each(this.__rules, function (index, object) {
 			console.log(object.element.value);
-			if(object.dataFieldName){
+			if (object.dataFieldName) {
 				inputValue[object.dataFieldName] = object.element.value;
-			}else{
+			} else {
 				inputValue[object.name] = object.element.value;
 			}
 
@@ -329,25 +339,37 @@ FormMi.prototype = {
 	},
 	//重置方法
 	reset: function () {
-
+		var FormMi = this;
+		$.each(FormMi.__rules, function (index, object) {
+			object.state = false;
+			object.element.value = '';
+			object.element.setAttribute('data-state','');
+		});
+		FormMi.__state = false;
 	},
-	sendData:function () {
+	sendData: function () {
 		var data = this.getInputValue(); //获得验证成功后的数据
+		this.__option.submit();
+		if(this.__sendData){ //合并外部数据
+			data = $.extend({},data,this.__sendData)
+		}
 
-		    $.ajax({
-		       type: "POST",
-		       url: this.__action,
-		       data: data,
-		       cache: false,
-		       dataType: "jsonp",
-		       beforeSend:function(){}
-		    }).done(function(data){
-
-		    }).fail(function(){
-
-		    });
+		$.ajax({
+			type: "POST",
+			url: this.__action,
+			data: data,
+			cache: false,
+			dataType: "json",
+			beforeSend: function () {
+			}
+		}).done(function (data) {
+			console.log('done:',data);
+		}).fail(function (data) {
+			console.log('fail:',data);
+		});
 	},
 	submit: function (fn) {
+		this.__state = this.checkInputState();
 		if (typeof fn === 'function') {
 			fn(this.__state);
 		}

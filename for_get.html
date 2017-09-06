@@ -54,11 +54,9 @@
 <script type="text/javascript" src="js/jquery.min.js"></script>
 <script type="text/javascript" src="js/mvForm.js"></script>
 <script type="text/javascript">
-    function ck_user() {
+    function ck_user(data) {
 	    console.log('检测用户:')
-        return $.post('https://www.easy-mock.com/mock/59084bef7a878d73716e6641/all/check_user_name',{
-
-        })
+        return $.post('https://www.easy-mock.com/mock/59084bef7a878d73716e6641/all/check_user_name',data)
     }
 	var v = new FormMi({
 		form: '#form_forget',
@@ -78,11 +76,15 @@
 				//change: false, //实时验证
                 ajaxUrl:'https://www.easy-mock.com/mock/59084bef7a878d73716e6641/all/check_user_name',
 				success: function (ele) {
-					ck_user()
+					ck_user({
+						user_name:$.trim(ele.value)
+                    })
                         .then(function (req) {
-                            if(req.data.state){
+                            if(req.data.state == 1){
+	                            console.log('成功');
 	                            v.setDomState({name:'name',state:1}); //成功
                             }else{
+	                            console.log('失败');
 	                            v.setDomState({name:'name',state:0}); //失败
                             }
                         })
@@ -116,13 +118,16 @@
 			}
 		],
 		submit: function (state) {
-			//验证全部表单,
+			//验证全部表单
+            v.setDate({key:1});
+			console.log('验证全部表单');
 		}
 	});
 
-	v.submit(function (state) {
-		console.log('/*表单验证*/', state);
-	});
+    //独立调用submit提交方法
+	/*v.submit(function (state) {
+		console.log('/表单验证/', state);
+	});*/
 
 	console.log('xxxxx', v);
 
