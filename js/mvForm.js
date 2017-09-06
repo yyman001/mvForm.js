@@ -73,7 +73,7 @@ FormMi.prototype = {
 		return rules;
 	},
 	isInput: function (type) {
-		console.log('this.__inputType[type]:', this.__inputType[type]);
+		// console.log('this.__inputType[type]:', this.__inputType[type]);
 		return !!this.__inputType[type];
 	},
 	bindInput: function (FormMi, element, option) {
@@ -89,12 +89,21 @@ FormMi.prototype = {
 		$(element).on(
 			{
 				blur: function (e) {
-					if (option.required && !option.state) {
-						if (rules) {
-							this.value.match(rules) ? $(element).attr('data-state', FormMi.__successClass) : $(element).attr('data-state', FormMi.__errorClass);
-							option.state = $(element).attr('data-state') === 'successClass' ? !!1 : !!0;
-							// return rules.search(this.value) ? $(element).attr('data-state',FormMi.__successClass) : $(element).attr('data-state',FormMi.__errorClass);
+					// if (option.required && !option.state) {
+					if (option.required) {//必填
+						if (!option.change || !option.state) {
+							if (rules) { //有验证表达式
+								// this.value.match(rules) ? $(element).attr('data-state', FormMi.__successClass) : $(element).attr('data-state', FormMi.__errorClass);
+								FormMi.setInputState(this.value.match(rules),option);
+							} else {
+								FormMi.setInputState($.trim(this.value),option);
+								// !!$.trim(this.value) ? $(element).attr('data-state', FormMi.__successClass) : $(element).attr('data-state', FormMi.__errorClass);
+							}
+							FormMi.setTargetState(option);
+							// option.state = $(element).attr('data-state') === FormMi.__successClass ? !!1 : !!0;
 						}
+					} else { //非必填
+
 					}
 
 					if (option.state && typeof option.success === 'function') {
@@ -113,12 +122,17 @@ FormMi.prototype = {
 				},
 				focus: function (e) {
 					if (option.focus) {
-						if (option.required && !option.state) {
-							if (rules) {
-								this.value.match(rules) ? $(element).attr('data-state', FormMi.__successClass) : $(element).attr('data-state', FormMi.__errorClass);
-								option.state = $(element).attr('data-state') === 'successClass' ? !!1 : !!0;
-								// return rules.search(this.value) ? $(element).attr('data-state',FormMi.__successClass) : $(element).attr('data-state',FormMi.__errorClass);
+
+						if (!option.change || !option.state) {
+							if (rules) { //有验证表达式
+								// this.value.match(rules) ? $(element).attr('data-state', FormMi.__successClass) : $(element).attr('data-state', FormMi.__errorClass);
+								FormMi.setInputState(this.value.match(rules),option);
+							} else {
+								FormMi.setInputState($.trim(this.value),option);
+								// !!$.trim(this.value) ? $(element).attr('data-state', FormMi.__successClass) : $(element).attr('data-state', FormMi.__errorClass);
 							}
+							FormMi.setTargetState(option);
+							// option.state = $(element).attr('data-state') === FormMi.__successClass ? !!1 : !!0;
 						}
 
 						if (option.state && typeof option.success === 'function') {
@@ -133,7 +147,6 @@ FormMi.prototype = {
 							option.callback(element, option.state);
 						}
 
-						console.log('focus:option.state:', option.state, element.name);
 					} else {
 						if (!option.state) {
 							$(element).attr('data-state', '');
@@ -142,13 +155,15 @@ FormMi.prototype = {
 				},
 				keyup: function (e) {
 					if (option.change) {
-						if (option.required && !option.state) {
-							if (rules) {
-								this.value.match(rules) ? $(element).attr('data-state', FormMi.__successClass) : $(element).attr('data-state', FormMi.__errorClass);
-								option.state = $(element).attr('data-state') === 'successClass' ? !!1 : !!0;
-								// return rules.search(this.value) ? $(element).attr('data-state',FormMi.__successClass) : $(element).attr('data-state',FormMi.__errorClass);
-							}
+
+						// if ($.trim(this.value)) {
+						if (rules) { //有验证表达式
+							FormMi.setInputState(this.value.match(rules),option);
+						} else {
+							FormMi.setInputState($.trim(this.value),option);
 						}
+						FormMi.setTargetState(option);
+						// }
 
 						if (option.state && typeof option.success === 'function') {
 							option.success(element)
@@ -164,7 +179,7 @@ FormMi.prototype = {
 					} else {
 						//$(element).attr('data-state','');
 					}
-					console.log(this.value);
+					// console.log(this.value);
 				}
 			}
 		)
@@ -180,15 +195,15 @@ FormMi.prototype = {
 				value.element = FormMi.__formDOM[key];
 
 				// 判断类型
-				console.log('type', value.element.type);
-				console.log('isInput', FormMi.isInput(value.element.type));
+				// console.log('type', value.element.type);
+				// console.log('isInput', FormMi.isInput(value.element.type));
 				if (FormMi.isInput(value.element.type)) {
 					//写入lock值 => 主要是给验证成功后,锁死,则不需要变动?
 					value.focus = !!0;
 					//判断focus 值
 					value.focus = !!value.focus;
 					//绑定实时监测?
-					console.log('typeof value.change:', typeof value.change);
+					// console.log('typeof value.change:', typeof value.change);
 					value.change = typeof value.change !== 'undefined' ? value.change : !!1;
 
 					FormMi.bindInput(FormMi, FormMi.__formDOM[key], value)
@@ -211,8 +226,8 @@ FormMi.prototype = {
 		 });*/
 
 		/*FormMi.__$submitDOM.on('click', function (e) {
-			console.log('********************');
-		});*/
+		 console.log('********************');
+		 });*/
 
 		FormMi.__$formDOM.on('submit', function (e) {
 			console.log("this.__formType", FormMi.__formType);
@@ -248,19 +263,32 @@ FormMi.prototype = {
 	parseRules: function () {
 
 	},
-	setInputState: function (object) {
-		object.element.setAttribute('data-state', object.state ? 'successClass' : 'errorClass');
+
+	setTargetState: function (object) {
+		object.state = object.element.getAttribute('data-state') === this.__successClass ? !!1 : !!0;
+	},
+	setInputState: function (boolean, object) {
+		// boolean ? $(element).attr('data-state', this.__successClass) : $(element).attr('data-state', this.__errorClass)
+		object.element.setAttribute('data-state', boolean ? this.__successClass : this.__errorClass);
+	},
+	setInputClass: function (object) {
+		object.element.setAttribute('data-state', object.state ? this.__successClass : this.__errorClass);
 	},
 	getErrorInput: function () {
 		var FormMi = this;
 		var errorInput = [];
-		for (var i = 0, l = FormMi.__rules.length; i < l; i++) {
-			if (!FormMi.__rules[i].state) {
-				errorInput.push(FormMi.__rules[i]);
-				FormMi.setInputState(FormMi.__rules[i]);
+
+		$.each(FormMi.__rules, function (index, object) {
+			console.log(object);
+			if (object.required && !object.state) {
+				errorInput.push(object);
+				FormMi.setInputClass(object);
+			} else if (!object.required && object.rules) { //不是必填,但写了正则,希望可以检验数据
+				FormMi.setInputClass(object);
 			}
-		}
-		console.log('errorLength:', errorInput);
+		});
+
+		// console.log('errorLength:', errorInput);
 		return errorInput;
 	},
 	//检查input的状态值
@@ -281,56 +309,3 @@ FormMi.prototype = {
 
 // var v = new FormMi();
 
-var v = new FormMi({
-	form: '#form_forget',
-	formType: '', //提交类型,默认是异步,阻止表单提交的
-	action: '', //发送地址 默认空
-	method: 'post', //发送类型,默认post
-	submitBtn: '.button--submit',
-	errorClass: '', //默认 errorClass
-	successClass: '', //默认 successClass
-	rules: [
-		{
-			name: 'name',
-			required: true,
-			rules: 'name',
-			focus: false,//获得焦点验证=>默认值
-			change: false, //实时验证
-			success: function (ele) {
-
-			},
-			fail: function (ele) {
-
-			},
-			callback: function (state) {
-				// console.log(state);
-			}
-		},
-		{
-			name: 'form__mobile',
-			required: true,
-			rules: 'mobile',
-			// focus: true,
-			callback: function (state) {
-				// console.log(state);
-			}
-		},
-		{
-			name: 'form__code',
-			required: true,
-			rules: /^(\d{6})$/,
-			callback: function (state) {
-				// console.log(state);
-			}
-		}
-	],
-	submit: function (state) {
-		//验证全部表单,
-	}
-});
-
-v.submit(function (state) {
-	console.log('/*表单验证*/', state);
-});
-
-console.log('xxxxx', v);

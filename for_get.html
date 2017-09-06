@@ -52,15 +52,63 @@
     </div>
 
 <script type="text/javascript" src="js/jquery.min.js"></script>
-<!--<script type="text/javascript" src="js/Validform_v5.3.2.js"></script>-->
-<script type="text/javascript" src="js/jquery.validate.min.js"></script>
-<script type="text/javascript" src="js/codeTime.js"></script>
-<script type="text/javascript" src="js/vue.js"></script>
-    <!--<script type="text/javascript" src="js/validate.js"></script>-->
-<script type="text/javascript" src="js/SMValidator.min.js"></script>
-<!--<script type="text/javascript" src="js/index.js"></script>-->
-    <script type="text/javascript" src="js/mvForm.js"></script>
+<script type="text/javascript" src="js/mvForm.js"></script>
 <script type="text/javascript">
+	var v = new FormMi({
+		form: '#form_forget',
+		formType: '', //提交类型,默认是异步,阻止表单提交的
+		action: '', //发送地址 默认空
+		method: 'post', //发送类型,默认post
+		submitBtn: '.button--submit',
+		errorClass: '', //默认 errorClass
+		successClass: '', //默认 successClass
+		rules: [
+			{
+				name: 'name',
+				required: true,
+				rules: 'name',
+				focus: false,//获得焦点验证=>默认值
+				change: false, //实时验证
+				success: function (ele) {
+
+				},
+				fail: function (ele) {
+
+				},
+				callback: function (state) {
+					// console.log(state);
+				}
+			},
+			{
+				name: 'form__mobile',
+				required: true,
+				rules: 'mobile',
+				// focus: true,
+				callback: function (state) {
+					// console.log(state);
+				}
+			},
+			{
+				name: 'form__code',
+				required: true,
+				rules: /^(\d{6})$/,
+				callback: function (state) {
+					// console.log(state);
+				}
+			}
+		],
+		submit: function (state) {
+			//验证全部表单,
+		}
+	});
+
+	v.submit(function (state) {
+		console.log('/*表单验证*/', state);
+	});
+
+	console.log('xxxxx', v);
+
+
 /*
 	var validator = new FormValidator('form_forget', [
 		{
