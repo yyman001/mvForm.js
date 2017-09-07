@@ -53,9 +53,17 @@
                     <input id="form__auto" name="form__auto" type="checkbox" class="form__checkbox" value="我已经阅读并同意">
                 </div>
                 <div class="form__row">
-                    <input name="checkbox" type="checkbox" class="form__checkbox" value="1">1
-                    <input name="checkbox" type="checkbox" class="form__checkbox" value="2">2
-                    <input name="checkbox" type="checkbox" class="form__checkbox" value="3">3
+                    <input name="checkbox" type="checkbox" class="form__checkbox" value="checkbox1">checkbox1
+                    <input name="checkbox" type="checkbox" class="form__checkbox" value="checkbox2">checkbox2
+                    <input name="checkbox" type="checkbox" class="form__checkbox" value="checkbox3">checkbox3
+                </div>
+                <div class="form__row">
+                    <input name="radio1" type="radio" class="form__checkbox" value="radio1">radio1
+                </div>
+                <div class="form__row">
+                    <input name="radio" type="radio" class="form__checkbox" value="radio1">radio1
+                    <input name="radio" type="radio" class="form__checkbox" value="radio2">radio2
+                    <input name="radio" type="radio" class="form__checkbox" value="radio3">radio3
                 </div>
                 <button class="button button--submit" type="submit">确认修改</button>
             </form>
@@ -153,6 +161,14 @@
 				name:'checkbox',
 				required: true,
 	            send:true
+            },
+            {
+				name:'radio',
+				required: true
+            },
+            {
+				name:'radio1',
+				required: true
             }
 		],
 		submit: function (state) {

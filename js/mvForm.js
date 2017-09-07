@@ -299,6 +299,8 @@ FormMi.prototype = {
 				//记录类型
 				value.type = value.element.length ? value.element[0].type:value.element.type;
 
+				//默认未验证状态
+				value.state = false;
 				// 判断类型
 				// console.log('type1', value.element.getAttribute('type'),value.element.name);
 				// console.log('type2', value.element.type,value.element.name);
@@ -317,7 +319,7 @@ FormMi.prototype = {
 						value.send = typeof value.send !== 'undefined' ? value.send : !!1;
 					}
 
-					value.state = false;
+
 
 					//缓存password 引用
 					if(value.element.type === 'password' && !value.equalTo){
@@ -459,11 +461,11 @@ FormMi.prototype = {
 			// if()
 			if (object.required && !object.state) {
 				errorInput.push(object);
-				if(object.type !== 'checkbox'){
+				if(object.type !== 'checkbox' && object.type !== 'radio'){
 					FormMi.setInputClass(object);
 				}
 			} else if (!object.required && object.rules) { //不是必填,但写了正则,希望可以检验数据
-				if(object.type !== 'checkbox'){
+				if(object.type !== 'checkbox' && object.type !== 'radio'){
 					FormMi.setInputClass(object);
 				}
 			}
@@ -492,6 +494,26 @@ FormMi.prototype = {
 
 		return value;
 	},
+	getRadioValue:function (radio_object) {
+		var value;
+		console.log('1=>checkbox_object:', radio_object);
+		console.log('checkbox_object.length:', radio_object.element.length);
+		if(radio_object.element.length){
+			$.each(radio_object.element,function (index, element) {
+				console.log('checkbox_object:',index, element);
+				if(element.checked){
+					value = element.value
+				}
+			});
+		}else{
+			if(radio_object.element.checked){
+				value = radio_object.element.value
+			}
+		}
+
+		return value;
+
+	},
 	/*
 	 * return {}
 	 * */
@@ -511,7 +533,11 @@ FormMi.prototype = {
 				}
 
 			}else if(object.type === 'radio'){
-
+				if (object.dataFieldName) {
+					inputValue[object.dataFieldName] = FormMi.getRadioValue(object);
+				}else{
+					inputValue[object.name] = FormMi.getRadioValue(object);
+				}
 			}else{
 
 				if (object.dataFieldName) {
