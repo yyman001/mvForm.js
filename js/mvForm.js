@@ -291,8 +291,13 @@ FormMi.prototype = {
 			// console.log(value,'key:', key);
 			// console.log(FormMi.__formDOM[value.name], !!FormMi.__formDOM[key]);
 			if (!!FormMi.__formDOM[value.name]) {
+
+
 				//并入dom元素
 				value.element = FormMi.__formDOM[value.name];
+
+				//记录类型
+				value.type = value.element.length ? value.element[0].type:value.element.type;
 
 				// 判断类型
 				// console.log('type1', value.element.getAttribute('type'),value.element.name);
@@ -306,6 +311,11 @@ FormMi.prototype = {
 					//绑定实时监测?
 					// console.log('typeof value.change:', typeof value.change);
 					value.change = typeof value.change !== 'undefined' ? value.change : !!1;
+
+					//checkbox 元素 有效
+					if(value.type ===  'checkbox'){
+						value.send = typeof value.send !== 'undefined' ? value.send : !!1;
+					}
 
 					value.state = false;
 
@@ -329,6 +339,23 @@ FormMi.prototype = {
 						}
 					}
 					FormMi.bindInput(FormMi, FormMi.__formDOM[value.name], value)
+				}else if(value.element.type === 'checkbox'){
+					value.state = false;
+					value.element = FormMi.__formDOM[value.name];
+					console.log('value.element:', value.element);
+
+					$(value.element).on('click',function (e) {
+						console.log('this.checked:', this);
+						console.log('this.checked:', this.checked);
+						value.state = this.checked;
+						//this.checked = !this.checked;
+						//value.state = this.checked;
+						console.log(value.state);
+						this.checked ? FormMi.setInputSuccessClass(this) : FormMi.setInputErrorClass(this);
+						//console.log(this.value);
+						// return false;
+					});
+
 				}
 
 				// console.log('isInput',!!FormMi.isInput(value.element.type));
@@ -402,7 +429,9 @@ FormMi.prototype = {
 			console.log(object);
 			if (object.name === parameter.name) {
 				object.state = parameter.state;
-				FormMi.setInputClass(object)
+				if(object.type !== 'checkbox'){
+					FormMi.setInputClass(object)
+				}
 			}
 		});
 	},
@@ -430,33 +459,70 @@ FormMi.prototype = {
 			// if()
 			if (object.required && !object.state) {
 				errorInput.push(object);
-				FormMi.setInputClass(object);
+				if(object.type !== 'checkbox'){
+					FormMi.setInputClass(object);
+				}
 			} else if (!object.required && object.rules) { //不是必填,但写了正则,希望可以检验数据
-				FormMi.setInputClass(object);
+				if(object.type !== 'checkbox'){
+					FormMi.setInputClass(object);
+				}
 			}
-
 		});
 
 		// console.log('errorLength:', errorInput);
 		return errorInput;
+	},
+
+	getCheckboxValue:function (checkbox_object) {
+		var value = [];
+		console.log('1=>checkbox_object:', checkbox_object);
+		console.log('checkbox_object.length:', checkbox_object.element.length);
+		if(checkbox_object.element.length){
+			$.each(checkbox_object.element,function (index, element) {
+				console.log('checkbox_object:',index, element);
+				if(element.checked){
+					value.push(element.value)
+				}
+			});
+		}else{
+			if(checkbox_object.element.checked){
+				value.push(checkbox_object.element.value)
+			}
+		}
+
+		return value;
 	},
 	/*
 	 * return {}
 	 * */
 	getInputValue: function () {
 		var inputValue = {};
-		$.each(this.__rules, function (index, object) {
-			console.log(object.element.value);
-			if (object.dataFieldName) {
-				inputValue[object.dataFieldName] = object.element.value;
-			} else {
-				inputValue[object.name] = object.element.value;
+		var FormMi = this;
+
+		$.each(FormMi.__rules, function (index, object) {
+			// console.log(' object.send :',object.type,object.send,object.type === 'checkbox' && object.send);
+			if(object.type === 'checkbox'){
+				if(object.send){
+					if (object.dataFieldName) {
+						inputValue[object.dataFieldName] = FormMi.getCheckboxValue(object);
+					} else {
+						inputValue[object.name] = FormMi.getCheckboxValue(object);
+					}
+				}
+
+			}else if(object.type === 'radio'){
+
+			}else{
+
+				if (object.dataFieldName) {
+					inputValue[object.dataFieldName] = object.element.value;
+				} else {
+					inputValue[object.name] = object.element.value;
+				}
 			}
 
-			// if($.trim(object.element.value)){
-			// 	object.element.value
-			// }
 		});
+
 		console.log('inputValue:', inputValue);
 		return inputValue;
 	},
