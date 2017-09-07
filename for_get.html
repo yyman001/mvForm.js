@@ -119,13 +119,19 @@
 			{
 				name:'form__passwords',
 				required: true,
-				rules: /^(\d{6})$/
+				rules: /^(\d{6})$/,
+				callback: function (element) {
+					 console.log(element);
+				}
 			},
 			{
 				name:'form__r_passwords',
-				required: true,
-				rules: /^(\d{6})$/,
-				equalTo:'form__passwords'
+//				required: true,
+				//rules: /^(\d{6})$/,
+				equalTo:'form__passwords',//required 默认为真
+				callback: function (element) {
+					 console.log(element);
+				}
 			}
 		],
 		submit: function (state) {

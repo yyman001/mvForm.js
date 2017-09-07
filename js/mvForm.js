@@ -87,7 +87,7 @@ FormMi.prototype = {
 		// 	//其他,字符串
 		// 	rules = option.rules === null ? '' : option.rules;
 		// }
-		console.log('rules:', rules);
+		console.log('rules:', rules,element);
 		$(element).on(
 			{
 				blur: function (e) {
@@ -209,7 +209,11 @@ FormMi.prototype = {
 					// console.log('typeof value.change:', typeof value.change);
 					value.change = typeof value.change !== 'undefined' ? value.change : !!1;
 
-					FormMi.bindInput(FormMi, FormMi.__formDOM[key], value)
+					if(value.equalTo){
+						value.required = true;
+					}
+
+					FormMi.bindInput(FormMi, FormMi.__formDOM[value.name], value)
 				}
 
 				// console.log('isInput',!!FormMi.isInput(value.element.type));
