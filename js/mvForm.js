@@ -297,7 +297,12 @@ FormMi.prototype = {
 				value.element = FormMi.__formDOM[value.name];
 
 				//记录类型
-				value.type = value.element.length ? value.element[0].type:value.element.type;
+
+				if(value.element.nodeName === 'SELECT'){
+					value.type = 'select';
+				}else{
+					value.type = value.element.length ? value.element[0].type:value.element.type;
+				}
 
 				//默认未验证状态
 				value.state = false;
@@ -453,6 +458,7 @@ FormMi.prototype = {
 	setInputErrorClass:function (element) {
 		element.setAttribute('data-state', this.__errorClass );
 	},
+
 	getErrorInput: function () {
 		var FormMi = this;
 		var errorInput = [];
@@ -513,6 +519,13 @@ FormMi.prototype = {
 
 		return value;
 
+	},
+	getSelectValue:function () {
+		var value;
+
+
+
+		return value;
 	},
 	/*
 	 * return {}

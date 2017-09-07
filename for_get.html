@@ -65,6 +65,13 @@
                     <input name="radio" type="radio" class="form__checkbox" value="radio2">radio2
                     <input name="radio" type="radio" class="form__checkbox" value="radio3">radio3
                 </div>
+                <div class="form__row">
+                    <select name="select" id="">
+                        <option value="-1">请选着</option>
+                        <option value="select1">select1</option>
+                        <option value="select2">select2</option>
+                    </select>
+                </div>
                 <button class="button button--submit" type="submit">确认修改</button>
             </form>
         </div>
@@ -169,6 +176,10 @@
             {
 				name:'radio1',
 				required: true
+            },
+            {
+            	name:'select',
+	            required: true
             }
 		],
 		submit: function (state) {
