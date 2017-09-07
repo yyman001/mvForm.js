@@ -115,6 +115,17 @@
 				callback: function (state) {
 					// console.log(state);
 				}
+			},
+			{
+				name:'form__passwords',
+				required: true,
+				rules: /^(\d{6})$/
+			},
+			{
+				name:'form__r_passwords',
+				required: true,
+				rules: /^(\d{6})$/,
+				equalTo:'form__passwords'
 			}
 		],
 		submit: function (state) {

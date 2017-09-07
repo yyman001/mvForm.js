@@ -191,13 +191,14 @@ FormMi.prototype = {
 
 		$.each(FormMi.__rules, function (key, value) {
 			// console.log(value,'key:', key);
-			// console.log(FormMi.__formDOM[key], !!FormMi.__formDOM[key]);
-			if (!!FormMi.__formDOM[key]) {
+			// console.log(FormMi.__formDOM[value.name], !!FormMi.__formDOM[key]);
+			if (!!FormMi.__formDOM[value.name]) {
 				//并入dom元素
-				value.element = FormMi.__formDOM[key];
+				value.element = FormMi.__formDOM[value.name];
 
 				// 判断类型
-				// console.log('type', value.element.type);
+				// console.log('type1', value.element.getAttribute('type'),value.element.name);
+				// console.log('type2', value.element.type,value.element.name);
 				// console.log('isInput', FormMi.isInput(value.element.type));
 				if (FormMi.isInput(value.element.type)) {
 					//写入lock值 => 主要是给验证成功后,锁死,则不需要变动?
