@@ -182,6 +182,11 @@ FormMi.prototype = {
 								FormMi.setTargetState(option);
 								// option.state = $(element).attr('data-state') === FormMi.__successClass ? !!1 : !!0;
 							}
+
+							if(element.type === 'password' && $.trim(option.confirmObject.element.value)){
+								FormMi.setInputState(element.value === option.confirmObject.element.value, option.confirmObject);
+								FormMi.setTargetState(option.confirmObject);
+							}
 						} else { //非必填
 
 						}
@@ -202,18 +207,26 @@ FormMi.prototype = {
 					},
 					focus: function (e) {
 						if (option.focus) {
-
-							if (!option.change || !option.state) {
-								if (rules) { //有验证表达式
-									// this.value.match(rules) ? $(element).attr('data-state', FormMi.__successClass) : $(element).attr('data-state', FormMi.__errorClass);
-									FormMi.setInputState(this.value.match(rules), option);
-								} else {
-									FormMi.setInputState($.trim(this.value), option);
-									// !!$.trim(this.value) ? $(element).attr('data-state', FormMi.__successClass) : $(element).attr('data-state', FormMi.__errorClass);
+							if (option.required) {//必填
+								if (!option.change || !option.state) {
+									if (rules) { //有验证表达式
+										// this.value.match(rules) ? $(element).attr('data-state', FormMi.__successClass) : $(element).attr('data-state', FormMi.__errorClass);
+										FormMi.setInputState(this.value.match(rules), option);
+									} else {
+										FormMi.setInputState($.trim(this.value), option);
+										// !!$.trim(this.value) ? $(element).attr('data-state', FormMi.__successClass) : $(element).attr('data-state', FormMi.__errorClass);
+									}
+									FormMi.setTargetState(option);
+									// option.state = $(element).attr('data-state') === FormMi.__successClass ? !!1 : !!0;
 								}
-								FormMi.setTargetState(option);
-								// option.state = $(element).attr('data-state') === FormMi.__successClass ? !!1 : !!0;
+
+								if(element.type === 'password' && $.trim(option.confirmObject.element.value)){
+									FormMi.setInputState(element.value === option.confirmObject.element.value, option.confirmObject);
+									FormMi.setTargetState(option.confirmObject);
+								}
+
 							}
+
 
 							if (option.state && typeof option.success === 'function') {
 								option.success(element)
@@ -234,7 +247,7 @@ FormMi.prototype = {
 						}
 					},
 					keyup: function (e) {
-						if (option.change) {
+						if (option.change && option.required) {
 
 							// if ($.trim(this.value)) {
 							if (rules) { //有验证表达式
@@ -244,6 +257,11 @@ FormMi.prototype = {
 							}
 							FormMi.setTargetState(option);
 							// }
+
+							if(element.type === 'password' && $.trim(option.confirmObject.element.value)){
+								FormMi.setInputState(element.value === option.confirmObject.element.value, option.confirmObject);
+								FormMi.setTargetState(option.confirmObject);
+							}
 
 							if (option.state && typeof option.success === 'function') {
 								option.success(element)
@@ -268,7 +286,7 @@ FormMi.prototype = {
 	},
 	bindEvent: function () {
 		var FormMi = this;
-
+		var temp_password_input = null;
 		$.each(FormMi.__rules, function (key, value) {
 			// console.log(value,'key:', key);
 			// console.log(FormMi.__formDOM[value.name], !!FormMi.__formDOM[key]);
@@ -291,10 +309,19 @@ FormMi.prototype = {
 
 					value.state = false;
 
+					//缓存password 引用
+					if(value.element.type === 'password' && !value.equalTo){
+						temp_password_input = value;
+						console.log('temp_password_input:', temp_password_input);
+					}
+
 					//重复密码验证
 					if(value.equalTo){
 						value.required = true;
 						value.focus = true;
+						//password 对象获得确认密码input
+						temp_password_input.confirm = value.name;
+						temp_password_input.confirmObject = value;
 						if(!!FormMi.__formDOM[value.equalTo]){
 							value.rules = FormMi.__formDOM[value.equalTo].rules;
 						}else{
