@@ -104,7 +104,7 @@
 				name: 'name',
                 dataFieldName:'user_name', //发送ajax的字段名
 				required: true,
-				rules: /\w{2,20}/,
+				//rules: /\w{2,20}/,
 				focus: false,//获得焦点验证=>默认值
 				//change: false, //实时验证
                 ajaxUrl:'https://www.easy-mock.com/mock/59084bef7a878d73716e6641/all/check_user_name',
@@ -144,7 +144,7 @@
 				rules: 'mobile',
 				// focus: true,
 				message:{
-//					required:'必填',
+					required:'必填',
 					rules:'请输入正确手机码以13,15,18,17开头的11位号码',
 					class:'label',
 					element:'span' //默认

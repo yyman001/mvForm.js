@@ -179,13 +179,17 @@ FormMi.prototype = {
 						// if (option.required && !option.state) {
 						if (option.required) {//必填
 							if (!option.change || !option.state) {
-								if (rules) { //有验证表达式
-									// this.value.match(rules) ? $(element).attr('data-state', FormMi.__successClass) : $(element).attr('data-state', FormMi.__errorClass);
+
+								if (this.value && this.value) { //有验证表达式
 									FormMi.setInputState(this.value.match(rules), option);
+									FormMi.setMessageStateForRules(this.value.match(rules),option);
+									console.log('rules');
 								} else {
+									console.log('vvv');
 									FormMi.setInputState($.trim(this.value), option);
-									// !!$.trim(this.value) ? $(element).attr('data-state', FormMi.__successClass) : $(element).attr('data-state', FormMi.__errorClass);
+									FormMi.setMessageStateForRequired(this.value.match(rules),option)
 								}
+
 								FormMi.setTargetState(option);
 								// option.state = $(element).attr('data-state') === FormMi.__successClass ? !!1 : !!0;
 							}
@@ -216,15 +220,14 @@ FormMi.prototype = {
 						if (option.focus) {
 							if (option.required) {//必填
 								if (!option.change || !option.state) {
-									if (rules) { //有验证表达式
-										// this.value.match(rules) ? $(element).attr('data-state', FormMi.__successClass) : $(element).attr('data-state', FormMi.__errorClass);
+									if (this.value && rules) { //有验证表达式
 										FormMi.setInputState(this.value.match(rules), option);
+										FormMi.setMessageStateForRules(this.value.match(rules),option);
 									} else {
 										FormMi.setInputState($.trim(this.value), option);
-										// !!$.trim(this.value) ? $(element).attr('data-state', FormMi.__successClass) : $(element).attr('data-state', FormMi.__errorClass);
+										FormMi.setMessageStateForRequired(this.value.match(rules),option)
 									}
 									FormMi.setTargetState(option);
-									// option.state = $(element).attr('data-state') === FormMi.__successClass ? !!1 : !!0;
 								}
 
 								if (element.type === 'password' && $.trim(option.confirmObject.element.value)) {
@@ -257,10 +260,12 @@ FormMi.prototype = {
 						if (option.change && option.required) {
 
 							// if ($.trim(this.value)) {
-							if (rules) { //有验证表达式
+							if (this.value && rules) { //有验证表达式
 								FormMi.setInputState(this.value.match(rules), option);
+								FormMi.setMessageStateForRules(this.value.match(rules),option);
 							} else {
 								FormMi.setInputState($.trim(this.value), option);
+								FormMi.setMessageStateForRequired(this.value.match(rules),option)
 							}
 							FormMi.setTargetState(option);
 							// }
@@ -323,7 +328,7 @@ FormMi.prototype = {
 					value.parentNode = FormMi.checkNode(value.element.parentNode);
 				}
 
-
+				console.error('value-rules:',value.rules);
 				// 判断类型
 				// console.log('type1', value.element.getAttribute('type'),value.element.name);
 				// console.log('type2', value.element.type,value.element.name);
@@ -455,13 +460,17 @@ FormMi.prototype = {
 		parentElement.insertBefore(newElement, referenceElement || null);
 	},
 	createElement: function (message) {
-		// var targetName = message.element ? message.element : 'label';
-		// var __class = message.class ? message.class : 'error__label';
 		var element = document.createElement(message.element.toLowerCase());
 		element.className = message.class;
 		element.style.display = 'none';
 		element.innerHTML = message.required ? message.required : this.__message.required;
 		return element;
+	},
+	setMessageStateForRules:function (boolean,object) {
+		return boolean ? this.hideElement(object.messageElement) : this.showElement(object.messageElement,object.message.rules);
+	},
+	setMessageStateForRequired:function ( boolean , object ) {
+		boolean ? this.hideElement(object.messageElement) : this.showElement(object.messageElement,object.message.required);
 	},
 	showElement: function (element, message) {
 		element.style.display = 'block';
@@ -489,11 +498,10 @@ FormMi.prototype = {
 		}
 		console.log('this.__sendData:', this.__sendData);
 	},
-	//element,type 1/0
+	//外部改变样式函数
 	setDomState: function (parameter) {
 		var FormMi = this;
 		$.each(FormMi.__rules, function (index, object) {
-			console.log(object);
 			if (object.name === parameter.name) {
 				object.state = parameter.state;
 				if (object.type !== 'checkbox') {
@@ -506,7 +514,6 @@ FormMi.prototype = {
 		object.state = object.element.getAttribute('data-state') === this.__successClass ? !!1 : !!0;
 	},
 	setInputState: function (boolean, object) {
-		// boolean ? $(element).attr('data-state', this.__successClass) : $(element).attr('data-state', this.__errorClass)
 		object.element.setAttribute('data-state', boolean ? this.__successClass : this.__errorClass);
 	},
 	setInputClass: function (object) {
@@ -524,7 +531,6 @@ FormMi.prototype = {
 		var errorInput = [];
 
 		$.each(FormMi.__rules, function (index, object) {
-			// if()
 			if (object.required && !object.state) {
 				errorInput.push(object);
 				if (object.type !== 'checkbox' && object.type !== 'radio') {
@@ -540,7 +546,6 @@ FormMi.prototype = {
 			}
 		});
 
-		// console.log('errorLength:', errorInput);
 		return errorInput;
 	},
 
