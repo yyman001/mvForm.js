@@ -23,6 +23,13 @@ function FormMi(option) {
 		text: 1,
 		password: 1
 	};
+	//提示错误信息对象
+	this.__message = {
+		required:'__必填选项'
+		,rules:''
+		,class:'label'
+		,element:'span'
+	};
 	this.__rulesList = {
 		email: /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/
 		, mobile: /^(((13[0-9]{1})|(15[0-9]{1}))+\d{8})$/
@@ -89,10 +96,10 @@ FormMi.prototype = {
 		// }
 		var passElement = null;
 		var passElementConfirm = null;
-		console.log('rules:', rules,element);
-		if(option.equalTo){
+		// console.log('rules:', rules,element);
+		if (option.equalTo) {
 			passElement = FormMi.__formDOM[option.equalTo];
-			console.log('passElement:', passElement);
+			// console.log('passElement:', passElement);
 			$(element).on(
 				{
 					blur: function (e) {
@@ -165,7 +172,7 @@ FormMi.prototype = {
 					}
 				}
 			)
-		}else{
+		} else {
 			$(element).on(
 				{
 					blur: function (e) {
@@ -183,7 +190,7 @@ FormMi.prototype = {
 								// option.state = $(element).attr('data-state') === FormMi.__successClass ? !!1 : !!0;
 							}
 
-							if(element.type === 'password' && $.trim(option.confirmObject.element.value)){
+							if (element.type === 'password' && $.trim(option.confirmObject.element.value)) {
 								FormMi.setInputState(element.value === option.confirmObject.element.value, option.confirmObject);
 								FormMi.setTargetState(option.confirmObject);
 							}
@@ -220,7 +227,7 @@ FormMi.prototype = {
 									// option.state = $(element).attr('data-state') === FormMi.__successClass ? !!1 : !!0;
 								}
 
-								if(element.type === 'password' && $.trim(option.confirmObject.element.value)){
+								if (element.type === 'password' && $.trim(option.confirmObject.element.value)) {
 									FormMi.setInputState(element.value === option.confirmObject.element.value, option.confirmObject);
 									FormMi.setTargetState(option.confirmObject);
 								}
@@ -258,7 +265,7 @@ FormMi.prototype = {
 							FormMi.setTargetState(option);
 							// }
 
-							if(element.type === 'password' && $.trim(option.confirmObject.element.value)){
+							if (element.type === 'password' && $.trim(option.confirmObject.element.value)) {
 								FormMi.setInputState(element.value === option.confirmObject.element.value, option.confirmObject);
 								FormMi.setTargetState(option.confirmObject);
 							}
@@ -287,6 +294,7 @@ FormMi.prototype = {
 	bindEvent: function () {
 		var FormMi = this;
 		var temp_password_input = null;
+		var interElement = null;
 		$.each(FormMi.__rules, function (key, value) {
 			// console.log(value,'key:', key);
 			// console.log(FormMi.__formDOM[value.name], !!FormMi.__formDOM[key]);
@@ -300,20 +308,18 @@ FormMi.prototype = {
 				value.state = false;
 
 				//记录类型 &&
-				if(value.element.nodeName === 'SELECT'){
+				if (value.element.nodeName === 'SELECT') {
 					value.type = 'select';
-				}else{
-					value.type = value.element.length ? value.element[0].type:value.element.type;
+				} else {
+					value.type = value.element.length ? value.element[0].type : value.element.type;
 				}
 
 				// 记录父元素
-				if(value.element.length && value.element.nodeName !== 'SELECT'){
-					console.warn(value.element[0].name,value.element[0].parentNode);
-					console.error(value.element[0].name,value.element[0].parentNode.nodeType);
+				if (value.element.length && value.element.nodeName !== 'SELECT') {
+					console.warn(value.element[0].name, value.element[0].parentNode, value.element[0].parentNode.nodeType);
 					value.parentNode = FormMi.checkNode(value.element[0].parentNode);
-				}else{
-					console.warn(value.element.name,value.element.parentNode);
-					console.error(value.element.name,value.element.parentNode.nodeType);
+				} else {
+					console.warn(value.element.name, value.element.parentNode, value.element.parentNode.nodeType);
 					value.parentNode = FormMi.checkNode(value.element.parentNode);
 				}
 
@@ -332,38 +338,37 @@ FormMi.prototype = {
 					value.change = typeof value.change !== 'undefined' ? value.change : !!1;
 
 					//checkbox 元素 有效
-					if(value.type ===  'checkbox'){
+					if (value.type === 'checkbox') {
 						value.send = typeof value.send !== 'undefined' ? value.send : !!1;
 					}
 
 
-
 					//缓存password 引用
-					if(value.element.type === 'password' && !value.equalTo){
+					if (value.element.type === 'password' && !value.equalTo) {
 						temp_password_input = value;
-						console.log('temp_password_input:', temp_password_input);
+						// console.log('temp_password_input:', temp_password_input);
 					}
 
 					//重复密码验证
-					if(value.equalTo){
+					if (value.equalTo) {
 						value.required = true;
 						value.focus = true;
 						//password 对象获得确认密码input
 						temp_password_input.confirm = value.name;
 						temp_password_input.confirmObject = value;
-						if(!!FormMi.__formDOM[value.equalTo]){
+						if (!!FormMi.__formDOM[value.equalTo]) {
 							value.rules = FormMi.__formDOM[value.equalTo].rules;
-						}else{
+						} else {
 							console.warn(new Error(value.equalTo + 'input表单不存在!'))
 						}
 					}
 					FormMi.bindInput(FormMi, FormMi.__formDOM[value.name], value)
-				}else if(value.element.type === 'checkbox'){
+				} else if (value.element.type === 'checkbox') {
 					value.state = false;
 					value.element = FormMi.__formDOM[value.name];
-					console.log('value.element:', value.element);
+					// console.log('value.element:', value.element);
 
-					$(value.element).on('click',function (e) {
+					$(value.element).on('click', function (e) {
 						console.log('this.checked:', this);
 						console.log('this.checked:', this.checked);
 						value.state = this.checked;
@@ -376,6 +381,20 @@ FormMi.prototype = {
 					});
 
 				}
+
+
+				//判断是否为 required 必填,默认是的话,默认创建 创建 message
+				if (value.required) {
+					value.message = value.message ? value.message : $.extend({}, value.message, FormMi.__message);
+					//插入元素
+					// if (value.message) {
+					interElement = FormMi.createElement(value.message);
+					FormMi.interElement(value.parentNode, interElement);
+					value.messageElement = interElement;
+					interElement = null;
+					// }
+				}
+
 
 				// console.log('isInput',!!FormMi.isInput(value.element.type));
 
@@ -432,15 +451,41 @@ FormMi.prototype = {
 	parseRules: function () {
 
 	},
-	checkNode:function (node) {
-		if(node !== null && node.nodeType === 1){
+	interElement: function (parentElement, newElement, referenceElement) {
+		parentElement.insertBefore(newElement, referenceElement || null);
+	},
+	createElement: function (message) {
+		var targetName = message.element ? message.element : 'label';
+		var __class = message.class ? message.class : 'error__label';
+		var element = document.createElement(targetName.toLowerCase());
+		element.className = __class;
+		element.style.display = 'none';
+		console.log('message.required:', message.required, !!message.required);
+		element.innerHTML = message.required ? message.required : this.__message.required;
+		console.log('element:', element);
+		return element;
+	},
+	showElement: function (element, message) {
+		element.style.display = 'block';
+		if (message) {
+			element.innerHTML = message;
+		}
+	},
+	hideElement: function (element, message) {
+		element.style.display = 'none';
+		if (message) {
+			element.innerHTML = message;
+		}
+	},
+	checkNode: function (node) {
+		if (node !== null && node.nodeType === 1) {
 			return node;
 		}
 		return null;
 	},
 	//合并发送数据
-	setDate: function ( object ) {
-		if(!$.isEmptyObject(object)){
+	setDate: function (object) {
+		if (!$.isEmptyObject(object)) {
 			this.__sendData = object;
 			// this.__sendData = $.extend({},this.__sendData,object)
 		}
@@ -453,7 +498,7 @@ FormMi.prototype = {
 			console.log(object);
 			if (object.name === parameter.name) {
 				object.state = parameter.state;
-				if(object.type !== 'checkbox'){
+				if (object.type !== 'checkbox') {
 					FormMi.setInputClass(object)
 				}
 			}
@@ -469,11 +514,11 @@ FormMi.prototype = {
 	setInputClass: function (object) {
 		object.element.setAttribute('data-state', object.state ? this.__successClass : this.__errorClass);
 	},
-	setInputSuccessClass:function (element) {
-		element.setAttribute('data-state', this.__successClass );
+	setInputSuccessClass: function (element) {
+		element.setAttribute('data-state', this.__successClass);
 	},
-	setInputErrorClass:function (element) {
-		element.setAttribute('data-state', this.__errorClass );
+	setInputErrorClass: function (element) {
+		element.setAttribute('data-state', this.__errorClass);
 	},
 
 	getErrorInput: function () {
@@ -484,11 +529,14 @@ FormMi.prototype = {
 			// if()
 			if (object.required && !object.state) {
 				errorInput.push(object);
-				if(object.type !== 'checkbox' && object.type !== 'radio'){
+				if (object.type !== 'checkbox' && object.type !== 'radio') {
 					FormMi.setInputClass(object);
 				}
+				if (object.messageElement) {
+					FormMi.showElement(object.messageElement);
+				}
 			} else if (!object.required && object.rules) { //不是必填,但写了正则,希望可以检验数据
-				if(object.type !== 'checkbox' && object.type !== 'radio'){
+				if (object.type !== 'checkbox' && object.type !== 'radio') {
 					FormMi.setInputClass(object);
 				}
 			}
@@ -498,38 +546,38 @@ FormMi.prototype = {
 		return errorInput;
 	},
 
-	getCheckboxValue:function (checkbox_object) {
+	getCheckboxValue: function (checkbox_object) {
 		var value = [];
 		console.log('1=>checkbox_object:', checkbox_object);
 		console.log('checkbox_object.length:', checkbox_object.element.length);
-		if(checkbox_object.element.length){
-			$.each(checkbox_object.element,function (index, element) {
-				console.log('checkbox_object:',index, element);
-				if(element.checked){
+		if (checkbox_object.element.length) {
+			$.each(checkbox_object.element, function (index, element) {
+				console.log('checkbox_object:', index, element);
+				if (element.checked) {
 					value.push(element.value)
 				}
 			});
-		}else{
-			if(checkbox_object.element.checked){
+		} else {
+			if (checkbox_object.element.checked) {
 				value.push(checkbox_object.element.value)
 			}
 		}
 
 		return value;
 	},
-	getRadioValue:function (radio_object) {
+	getRadioValue: function (radio_object) {
 		var value;
 		console.log('1=>checkbox_object:', radio_object);
 		console.log('checkbox_object.length:', radio_object.element.length);
-		if(radio_object.element.length){
-			$.each(radio_object.element,function (index, element) {
-				console.log('checkbox_object:',index, element);
-				if(element.checked){
+		if (radio_object.element.length) {
+			$.each(radio_object.element, function (index, element) {
+				console.log('checkbox_object:', index, element);
+				if (element.checked) {
 					value = element.value
 				}
 			});
-		}else{
-			if(radio_object.element.checked){
+		} else {
+			if (radio_object.element.checked) {
 				value = radio_object.element.value
 			}
 		}
@@ -537,7 +585,7 @@ FormMi.prototype = {
 		return value;
 
 	},
-	getSelectValue:function (element) {
+	getSelectValue: function (element) {
 		var value;
 
 		//this.__formDOM[]
@@ -554,8 +602,8 @@ FormMi.prototype = {
 
 		$.each(FormMi.__rules, function (index, object) {
 			// console.log(' object.send :',object.type,object.send,object.type === 'checkbox' && object.send);
-			if(object.type === 'checkbox'){
-				if(object.send){
+			if (object.type === 'checkbox') {
+				if (object.send) {
 					if (object.dataFieldName) {
 						inputValue[object.dataFieldName] = FormMi.getCheckboxValue(object);
 					} else {
@@ -563,13 +611,13 @@ FormMi.prototype = {
 					}
 				}
 
-			}else if(object.type === 'radio'){
+			} else if (object.type === 'radio') {
 				if (object.dataFieldName) {
 					inputValue[object.dataFieldName] = FormMi.getRadioValue(object);
-				}else{
+				} else {
 					inputValue[object.name] = FormMi.getRadioValue(object);
 				}
-			}else{
+			} else {
 
 				if (object.dataFieldName) {
 					inputValue[object.dataFieldName] = object.element.value;
@@ -593,15 +641,15 @@ FormMi.prototype = {
 		$.each(FormMi.__rules, function (index, object) {
 			object.state = false;
 			object.element.value = '';
-			object.element.setAttribute('data-state','');
+			object.element.setAttribute('data-state', '');
 		});
 		FormMi.__state = false;
 	},
 	sendData: function () {
 		var data = this.getInputValue(); //获得验证成功后的数据
 		this.__option.submit();
-		if(this.__sendData){ //合并外部数据
-			data = $.extend({},data,this.__sendData)
+		if (this.__sendData) { //合并外部数据
+			data = $.extend({}, data, this.__sendData)
 		}
 
 		$.ajax({
@@ -613,9 +661,9 @@ FormMi.prototype = {
 			beforeSend: function () {
 			}
 		}).done(function (data) {
-			console.log('done:',data);
+			console.log('done:', data);
 		}).fail(function (data) {
-			console.log('fail:',data);
+			console.log('fail:', data);
 		});
 	},
 	submit: function (fn) {

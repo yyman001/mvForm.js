@@ -19,6 +19,13 @@
         [data-state="errorClass"]{
             border:1px solid #ff0000;
         }
+        .label{
+            position: absolute;
+            top: 0;
+            left: 0;
+            font-size: 14px;
+            color: #ff0000;
+        }
     </style>
 </head>
 <body>
@@ -101,6 +108,12 @@
 				focus: false,//获得焦点验证=>默认值
 				//change: false, //实时验证
                 ajaxUrl:'https://www.easy-mock.com/mock/59084bef7a878d73716e6641/all/check_user_name',
+                message:{
+	                required:'必填',
+	                rules:'请输入2-20个字符',
+                    class:'label',
+	                element:'span' //默认
+                },
 				success: function (ele) {
 					ck_user({
 						user_name:$.trim(ele.value)
@@ -130,6 +143,12 @@
 				required: true,
 				rules: 'mobile',
 				// focus: true,
+				message:{
+//					required:'必填',
+					rules:'请输入正确手机码以13,15,18,17开头的11位号码',
+					class:'label',
+					element:'span' //默认
+				},
 				callback: function (state) {
 					// console.log(state);
 				}
