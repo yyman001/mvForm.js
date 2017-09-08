@@ -296,16 +296,28 @@ FormMi.prototype = {
 				//并入dom元素
 				value.element = FormMi.__formDOM[value.name];
 
-				//记录类型
+				//默认未验证状态
+				value.state = false;
 
+				//记录类型 &&
 				if(value.element.nodeName === 'SELECT'){
 					value.type = 'select';
 				}else{
 					value.type = value.element.length ? value.element[0].type:value.element.type;
 				}
 
-				//默认未验证状态
-				value.state = false;
+				// 记录父元素
+				if(value.element.length && value.element.nodeName !== 'SELECT'){
+					console.warn(value.element[0].name,value.element[0].parentNode);
+					console.error(value.element[0].name,value.element[0].parentNode.nodeType);
+					value.parentNode = FormMi.checkNode(value.element[0].parentNode);
+				}else{
+					console.warn(value.element.name,value.element.parentNode);
+					console.error(value.element.name,value.element.parentNode.nodeType);
+					value.parentNode = FormMi.checkNode(value.element.parentNode);
+				}
+
+
 				// 判断类型
 				// console.log('type1', value.element.getAttribute('type'),value.element.name);
 				// console.log('type2', value.element.type,value.element.name);
@@ -420,7 +432,12 @@ FormMi.prototype = {
 	parseRules: function () {
 
 	},
-
+	checkNode:function (node) {
+		if(node !== null && node.nodeType === 1){
+			return node;
+		}
+		return null;
+	},
 	//合并发送数据
 	setDate: function ( object ) {
 		if(!$.isEmptyObject(object)){
@@ -520,11 +537,12 @@ FormMi.prototype = {
 		return value;
 
 	},
-	getSelectValue:function () {
+	getSelectValue:function (element) {
 		var value;
 
-
-
+		//this.__formDOM[]
+		value = element.value;
+		console.log(value);
 		return value;
 	},
 	/*
