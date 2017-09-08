@@ -455,14 +455,12 @@ FormMi.prototype = {
 		parentElement.insertBefore(newElement, referenceElement || null);
 	},
 	createElement: function (message) {
-		var targetName = message.element ? message.element : 'label';
-		var __class = message.class ? message.class : 'error__label';
-		var element = document.createElement(targetName.toLowerCase());
-		element.className = __class;
+		// var targetName = message.element ? message.element : 'label';
+		// var __class = message.class ? message.class : 'error__label';
+		var element = document.createElement(message.element.toLowerCase());
+		element.className = message.class;
 		element.style.display = 'none';
-		console.log('message.required:', message.required, !!message.required);
 		element.innerHTML = message.required ? message.required : this.__message.required;
-		console.log('element:', element);
 		return element;
 	},
 	showElement: function (element, message) {
