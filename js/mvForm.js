@@ -368,19 +368,20 @@ FormMi.prototype = {
 						}
 					}
 					FormMi.bindInput(FormMi, FormMi.__formDOM[value.name], value)
-				} else if (value.element.type === 'checkbox') {
+				} else if (value.element.type === 'checkbox') { //单个多选
 					value.state = false;
 					value.element = FormMi.__formDOM[value.name];
 					// console.log('value.element:', value.element);
 
 					$(value.element).on('click', function (e) {
-						console.log('this.checked:', this);
-						console.log('this.checked:', this.checked);
+						// console.log('this.checked:', this);
+						// console.log('this.checked:', this.checked);
 						value.state = this.checked;
 						//this.checked = !this.checked;
 						//value.state = this.checked;
 						console.log(value.state);
-						this.checked ? FormMi.setInputSuccessClass(this) : FormMi.setInputErrorClass(this);
+						//this.checked ? FormMi.setInputSuccessClass(this) : FormMi.setInputErrorClass(this);
+						this.checked ? FormMi.hideElement(value.messageElement) : FormMi.showElement(value.messageElement);
 						//console.log(this.value);
 						// return false;
 					});
