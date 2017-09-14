@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>注册</title>
+    <link rel="stylesheet" href="css/index.css">
+    <!--<link rel="stylesheet" href="css/css.css">-->
+    <style>
+        .main{
+            margin: 0 auto;
+            width: 1000px;
+        }
+        input:focus{
+            outline: 1px solid transparent!important;
+        }
+        [data-state="successClass"]{
+            border:1px solid seagreen;
+        }
+        [data-state="errorClass"]{
+            border:1px solid #ff0000;
+        }
+        .label{
+            position: absolute;
+            top: 0;
+            left: 0;
+            font-size: 14px;
+            color: #ff0000;
+        }
+    </style>
+</head>
+<body>
+    <div id="form" class="main">
+        <div class="form form__reg">
+            <form id="form_reg" action="">
+                <div class="form__row">
+                    <label for="form__user_name" class="form__label">用户名</label>
+                    <input name="form__user_name" id="form__user_name" type="text" class="form__input" placeholder="请输入公司全称，4 ~ 50字，数字、英文或中文">
+                </div>
+                <div class="form__row">
+                    <label for="form__cp_name" class="form__label">公司名称</label>
+                    <input name="form__cp_name" id="form__cp_name" type="text" class="form__input" placeholder="请输入联系人姓名，2~ 200字，数字、英文或中文">
+                </div>
+                <div class="form__row">
+                    <label for="form__user" class="form__label">联系人</label>
+                    <input name="form__user" id="form__user" type="text" class="form__input" placeholder="请输入联系人姓名，2~ 200字，数字、英文或中文">
+                </div>
+                <div class="form__row">
+                    <label for="form__url" class="form__label">公司/店铺网址</label>
+                    <input name="form__url" id="form__url" type="text" class="form__input" placeholder="请输入您的公司/店铺网址：以http://开头">
+                </div>
+                <div class="form__row">
+                    <label for="form__mobile" class="form__label">手机号</label>
+                    <input name="form__mobile" id="form__mobile" type="text" class="form__input" placeholder="请输入手机号码" maxlength="11">
+                </div>
+                <div class="form__row">
+                    <label for="form__code" class="form__label">短信验证码</label>
+                    <input name="form__code" id="form__code" type="text" class="form__input" placeholder="请输入手机验证码">
+                    <button class="btn-timeout"></button>
+                </div>
+                <div class="form__row">
+                    <label for="form__passwords" class="form__label">密码</label>
+                    <input name="form__passwords" id="form__passwords" type="password" class="form__input" placeholder="请输入登录密码，不少于6个字符">
+                </div>
+                <div class="form__row">
+                    <label for="form__r_passwords" class="form__label">重复密码</label>
+                    <input name="form__r_passwords" id="form__r_passwords" type="password" class="form__input" placeholder="请再次输入登录密码">
+                </div>
+                <div class="form__row form__row--reg">
+                    <label for="form__auto" class="form__label-auto" data-state="no" data-js="form__label-auto">
+                        <span>我已经阅读并同意<a href="">《用户注册服务协议》</a></span>
+                    </label>
+                    <input id="form__auto" name="form__auto" type="checkbox" class="form__checkbox">
+                </div>
+
+                <button class="button button--submit" type="submit">注册</button>
+            </form>
+        </div>
+    </div>
+
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<!--<script type="text/javascript" src="js/jquery.validate.min.js"></script>-->
+<!--<script type="text/javascript" src="js/codeTime.js"></script>-->
+<!--<script type="text/javascript" src="js/vue.js"></script>-->
+<!--<script type="text/javascript" src="js/Validform.js"></script>-->
+<!--<script type="text/javascript" src="js/index.js"></script>-->
+<script type="text/javascript" src="js/mvForm.js"></script>
+<script type="text/javascript">
+    var reg = new FormMi({
+	    form: '#form_reg',
+	    formType: '', //提交类型,默认是异步,阻止表单提交的
+	    action: 'https://www.easy-mock.com/mock/59084bef7a878d73716e6641/all/post/forget', //发送地址 默认空
+	    //method: 'post', //发送类型,默认post
+	    submitBtn: '.button--submit',
+	    errorClass: '', //默认 errorClass
+	    successClass: '', //默认 successClass
+	    rules:[
+            {
+            	name:'form__user_name',
+	            required: true,
+	            rules: /\w{2,20}/,
+	            message:{
+		            required:'必填',
+		            rules:'请输入2-20个字符'
+	            }
+            }
+        ]
+    })
+
+
+</script>
+</body>
+</html>

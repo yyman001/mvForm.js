@@ -57,16 +57,15 @@ FormMi.prototype = {
 		this.__formDOM = this.__$formDOM[0];
 		this.getChildDOM();
 		this.bindEvent();
-	}
-	, checkMethodAndAction: function () {
-
 	},
 	getChildDOM: function () {
 		this.__$formChildDOM = this.__$formDOM.find('input');
 	},
-	checkRules: function () {
-
-	},
+	/**
+	 *
+	 * @param option
+	 * @returns {*}
+	 */
 	bindRules: function (option) {
 		var rules;
 		// console.log('typeof option.rules:', typeof option.rules);
@@ -81,10 +80,16 @@ FormMi.prototype = {
 		}
 		return rules;
 	},
-	isInput: function (type) {
-		// console.log('this.__inputType[type]:', this.__inputType[type]);
-		return !!this.__inputType[type];
-	},
+
+	// isInput: function (type) {
+	// 	return !!this.__inputType[type];
+	// },
+	/**
+	 *
+	 * @param FormMi
+	 * @param element
+	 * @param option
+	 */
 	bindInput: function (FormMi, element, option) {
 		var rules = FormMi.bindRules(option);
 		//正则
@@ -335,7 +340,7 @@ FormMi.prototype = {
 				// console.log('type1', object.element.getAttribute('type'),object.element.name);
 				// console.log('type2', object.element.type,object.element.name);
 				// console.log('isInput', FormMi.isInput(object.element.type));
-				if (FormMi.isInput(object.element.type)) {
+				if (FormMi.isTextOrPassWord(object.element)) {
 					//写入lock值 => 主要是给验证成功后,锁死,则不需要变动?
 					object.focus = !!0;
 					//判断focus 值
@@ -396,7 +401,7 @@ FormMi.prototype = {
 
 				//判断是否为 required 必填,默认是的话,默认创建 创建 message
 				if (object.required) {
-					object.message = object.message ? object.message : $.extend({}, object.message, FormMi.__message);
+					object.message = object.message ? $.extend({}, FormMi.__message, object.message) : $.extend({}, {}, FormMi.__message);
 					//插入元素
 					// if (object.message) {
 					interElement = FormMi.createElement(object.message);
@@ -462,48 +467,82 @@ FormMi.prototype = {
 	parseRules: function () {
 
 	},
+	/**
+	 *
+	 * @param parentElement
+	 * @param newElement
+	 * @param referenceElement
+	 */
 	interElement: function (parentElement, newElement, referenceElement) {
 		parentElement.insertBefore(newElement, referenceElement || null);
 	},
+	/**
+	 *
+	 * @param messageObject
+	 * @returns {Element}
+	 */
 	createElement: function (messageObject) {
+		console.log(messageObject.element);
 		var element = document.createElement(messageObject.element.toLowerCase());
 		element.className = messageObject.class;
 		element.style.display = 'none';
 		element.innerHTML = messageObject.required ? messageObject.required : this.__message.required;
 		return element;
 	},
+	/**
+	 *
+	 * @param boolean
+	 * @param object
+	 * @returns {*}
+	 */
 	setMessageStateForRules: function (boolean, object) {
 		return boolean ? this.hideElement(object.messageElement) : this.showElement(object.messageElement, object.message.rules);
 	},
+	/**
+	 *
+	 * @param boolean
+	 * @param object
+	 */
 	setMessageStateForRequired: function (boolean, object) {
 		boolean ? this.hideElement(object.messageElement) : this.showElement(object.messageElement, object.message.required);
 	},
+	/**
+	 *
+	 * @param element
+	 * @param message
+	 */
 	showElement: function (element, message) {
 		element.style.display = 'block';
 		if (message) {
 			element.innerHTML = message;
 		}
 	},
+	/**
+	 *
+	 * @param element
+	 * @param message
+	 */
 	hideElement: function (element, message) {
 		element.style.display = 'none';
 		if (message) {
 			element.innerHTML = message;
 		}
 	},
-	isNode: function (node) {
-		if (node !== null && node.nodeType === 1) {
-			return node;
-		}
-		return null;
-	},
-	//合并发送数据
+
+	/**
+	 * 合并发送数据
+	 * @param object
+	 */
 	setDate: function (object) {
 		if (!$.isEmptyObject(object)) {
 			this.__sendData = object;
 		}
 		console.log('this.__sendData:', this.__sendData);
 	},
-	//外部改变样式函数
+	/**
+	 * 外部改变样式函数
+	 * @param parameter
+	 */
 	setDomState: function (parameter) {
 		var FormMi = this;
 		$.each(FormMi.__rules, function (index, object) {
@@ -515,28 +554,73 @@ FormMi.prototype = {
 			}
 		});
 	},
+	/**
+	 *
+	 * @param object
+	 */
 	setTargetState: function (object) {
 		object.state = object.element.getAttribute('data-state') === this.__successClass ? !!1 : !!0;
 	},
+	/**
+	 *
+	 * @param boolean
+	 * @param object
+	 */
 	setInputState: function (boolean, object) {
 		object.element.setAttribute('data-state', boolean ? this.__successClass : this.__errorClass);
 	},
+	/**
+	 *
+	 * @param object
+	 */
 	setInputClass: function (object) {
 		object.element.setAttribute('data-state', object.state ? this.__successClass : this.__errorClass);
 	},
+	/**
+	 *
+	 * @param element
+	 */
 	setInputSuccessClass: function (element) {
 		element.setAttribute('data-state', this.__successClass);
 	},
+	/**
+	 *
+	 * @param element
+	 */
 	setInputErrorClass: function (element) {
 		element.setAttribute('data-state', this.__errorClass);
 	},
-
-	/*
-	* check checkbox|radio
-	* */
-	isCheckBoxOrRadio:function (element) {
-		return ( /radio|checkbox/i ).test( element.type );
+	/**
+	 *
+	 * @param node
+	 * @returns {*}
+	 */
+	isNode: function (node) {
+		if (node !== null && node.nodeType === 1) {
+			return node;
+		}
+		return null;
 	},
+	/**
+	 *
+	 * @param element
+	 * @returns {boolean}
+	 */
+	isTextOrPassWord: function (element) {
+		return ( /text|password/i ).test(element.type);
+	},
+	/**
+	 *
+	 * @param element
+	 * @returns {boolean}
+	 */
+	isCheckBoxOrRadio: function (element) {
+		return ( /radio|checkbox/i ).test(element.type);
+	},
+	/**
+	 *
+	 * @returns {Array}
+	 */
 	getErrorInput: function () {
 		var FormMi = this;
 		var errorInput = [];
@@ -544,10 +628,6 @@ FormMi.prototype = {
 		$.each(FormMi.__rules, function (index, object) {
 			if (object.required && !object.state) {
 				errorInput.push(object);
-				// if (object.type !== 'checkbox' && object.type !== 'radio') {
-				// 	FormMi.setInputClass(object);
-				// 	FormMi.showElement(object.messageElement);
-				// }
 				if (object.type === 'select') {
 					if (object.element.value) {
 						FormMi.hideElement(object.messageElement)
@@ -560,11 +640,8 @@ FormMi.prototype = {
 					}
 					FormMi.showElement(object.messageElement);
 				}
-				// if (object.messageElement) {
-				// 	FormMi.showElement(object.messageElement);
-				// }
+
 			} else if (!object.required && object.rules) { //不是必填,但写了正则,希望可以检验数据
-				// if (object.type !== 'checkbox' && object.type !== 'radio') {
 				if (!FormMi.isCheckBoxOrRadio(object)) {
 					FormMi.setInputClass(object);
 				}
@@ -573,7 +650,11 @@ FormMi.prototype = {
 
 		return errorInput;
 	},
-
+	/**
+	 *
+	 * @param checkbox_object
+	 * @returns {Array}
+	 */
 	getCheckboxValue: function (checkbox_object) {
 		var value = [];
 		console.log('1=>checkbox_object:', checkbox_object);
@@ -593,6 +674,11 @@ FormMi.prototype = {
 
 		return value;
 	},
+	/**
+	 *
+	 * @param radio_object
+	 * @returns {*}
+	 */
 	getRadioValue: function (radio_object) {
 		var value;
 		console.log('1=>checkbox_object:', radio_object);
@@ -613,15 +699,21 @@ FormMi.prototype = {
 		return value;
 
 	},
+	/**
+	 *
+	 * @param element
+	 * @returns {*}
+	 */
 	getSelectValue: function (element) {
 		var value;
 		value = element.value;
 		console.log(value);
 		return value;
 	},
-	/*
-	 * return {}
-	 * */
+	/**
+	 *
+	 * @returns {object}
+	 */
 	getInputValue: function () {
 		var inputValue = {};
 		var FormMi = this;
@@ -692,6 +784,10 @@ FormMi.prototype = {
 			console.log('fail:', data);
 		});
 	},
+	/**
+	 *
+	 * @param fn
+	 */
 	submit: function (fn) {
 		this.__state = this.checkInputState();
 		if (typeof fn === 'function') {
