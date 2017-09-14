@@ -25,10 +25,10 @@ function FormMi(option) {
 	};
 	//提示错误信息对象
 	this.__message = {
-		required:'__必填选项'
-		,rules:''
-		,class:'label'
-		,element:'span'
+		required: '__必填选项'
+		, rules: ''
+		, class: 'label'
+		, element: 'span'
 	};
 	this.__rulesList = {
 		email: /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/
@@ -182,12 +182,12 @@ FormMi.prototype = {
 
 								if (this.value && this.value) { //有验证表达式
 									FormMi.setInputState(this.value.match(rules), option);
-									FormMi.setMessageStateForRules(this.value.match(rules),option);
+									FormMi.setMessageStateForRules(this.value.match(rules), option);
 									console.log('rules');
 								} else {
 									console.log('vvv');
 									FormMi.setInputState($.trim(this.value), option);
-									FormMi.setMessageStateForRequired(this.value.match(rules),option)
+									FormMi.setMessageStateForRequired(this.value.match(rules), option)
 								}
 
 								FormMi.setTargetState(option);
@@ -222,10 +222,10 @@ FormMi.prototype = {
 								if (!option.change || !option.state) {
 									if (this.value && rules) { //有验证表达式
 										FormMi.setInputState(this.value.match(rules), option);
-										FormMi.setMessageStateForRules(this.value.match(rules),option);
+										FormMi.setMessageStateForRules(this.value.match(rules), option);
 									} else {
 										FormMi.setInputState($.trim(this.value), option);
-										FormMi.setMessageStateForRequired(this.value.match(rules),option)
+										FormMi.setMessageStateForRequired(this.value.match(rules), option)
 									}
 									FormMi.setTargetState(option);
 								}
@@ -262,10 +262,10 @@ FormMi.prototype = {
 							// if ($.trim(this.value)) {
 							if (this.value && rules) { //有验证表达式
 								FormMi.setInputState(this.value.match(rules), option);
-								FormMi.setMessageStateForRules(this.value.match(rules),option);
+								FormMi.setMessageStateForRules(this.value.match(rules), option);
 							} else {
 								FormMi.setInputState($.trim(this.value), option);
-								FormMi.setMessageStateForRequired(this.value.match(rules),option)
+								FormMi.setMessageStateForRequired(this.value.match(rules), option)
 							}
 							FormMi.setTargetState(option);
 							// }
@@ -300,109 +300,114 @@ FormMi.prototype = {
 		var FormMi = this;
 		var temp_password_input = null;
 		var interElement = null;
-		$.each(FormMi.__rules, function (key, value) {
-			// console.log(value,'key:', key);
-			// console.log(FormMi.__formDOM[value.name], !!FormMi.__formDOM[key]);
-			if (!!FormMi.__formDOM[value.name]) {
+		$.each(FormMi.__rules, function (key, object) {
+			// console.log(object,'key:', key);
+			// console.log(FormMi.__formDOM[object.name], !!FormMi.__formDOM[key]);
+			if (!!FormMi.__formDOM[object.name]) {
 
 
 				//并入dom元素
-				value.element = FormMi.__formDOM[value.name];
-
+				object.element = FormMi.__formDOM[object.name];
+				console.warn('object.element:', object.element, !!object.element.length)
 				//默认未验证状态
-				value.state = false;
+				object.state = false;
 
-				//记录类型 &&
-				if (value.element.nodeName === 'SELECT') {
-					value.type = 'select';
+				//记录类型 && 判断长度,用于后面判断是单个或是多个 checkbox/radio/select 类型
+				if (object.element.nodeName === 'SELECT') {
+					object.type = 'select';
+					object.length = 1;
 				} else {
-					value.type = value.element.length ? value.element[0].type : value.element.type;
+					object.type = object.element.length ? object.element[0].type : object.element.type;
+					object.length = object.element.length ? object.element.length : 1;
 				}
-
+				console.warn('object.length:', object.length)
 				// 记录父元素
-				if (value.element.length && value.element.nodeName !== 'SELECT') {
-					console.warn(value.element[0].name, value.element[0].parentNode, value.element[0].parentNode.nodeType);
-					value.parentNode = FormMi.checkNode(value.element[0].parentNode);
+				if (object.element.length && object.element.nodeName !== 'SELECT') {
+					// console.warn(object.element[0].name, object.element[0].parentNode, object.element[0].parentNode.nodeType);
+					object.parentNode = FormMi.isNode(object.element[0].parentNode);
 				} else {
-					console.warn(value.element.name, value.element.parentNode, value.element.parentNode.nodeType);
-					value.parentNode = FormMi.checkNode(value.element.parentNode);
+					// console.warn(object.element.name, object.element.parentNode, object.element.parentNode.nodeType);
+					object.parentNode = FormMi.isNode(object.element.parentNode);
 				}
 
-				console.error('value-rules:',value.rules);
+				// console.error('object-rules:',object.rules);
 				// 判断类型
-				// console.log('type1', value.element.getAttribute('type'),value.element.name);
-				// console.log('type2', value.element.type,value.element.name);
-				// console.log('isInput', FormMi.isInput(value.element.type));
-				if (FormMi.isInput(value.element.type)) {
+				// console.log('type1', object.element.getAttribute('type'),object.element.name);
+				// console.log('type2', object.element.type,object.element.name);
+				// console.log('isInput', FormMi.isInput(object.element.type));
+				if (FormMi.isInput(object.element.type)) {
 					//写入lock值 => 主要是给验证成功后,锁死,则不需要变动?
-					value.focus = !!0;
+					object.focus = !!0;
 					//判断focus 值
-					value.focus = !!value.focus;
+					object.focus = !!object.focus;
 					//绑定实时监测?
-					// console.log('typeof value.change:', typeof value.change);
-					value.change = typeof value.change !== 'undefined' ? value.change : !!1;
+					// console.log('typeof object.change:', typeof object.change);
+					object.change = typeof object.change !== 'undefined' ? object.change : !!1;
 
 					//checkbox 元素 有效
-					if (value.type === 'checkbox') {
-						value.send = typeof value.send !== 'undefined' ? value.send : !!1;
+					if (object.type === 'checkbox') {
+						object.send = typeof object.send !== 'undefined' ? object.send : !!1;
 					}
 
 
 					//缓存password 引用
-					if (value.element.type === 'password' && !value.equalTo) {
-						temp_password_input = value;
+					if (object.element.type === 'password' && !object.equalTo) {
+						temp_password_input = object;
 						// console.log('temp_password_input:', temp_password_input);
 					}
 
 					//重复密码验证
-					if (value.equalTo) {
-						value.required = true;
-						value.focus = true;
+					if (object.equalTo) {
+						object.required = true;
+						object.focus = true;
 						//password 对象获得确认密码input
-						temp_password_input.confirm = value.name;
-						temp_password_input.confirmObject = value;
-						if (!!FormMi.__formDOM[value.equalTo]) {
-							value.rules = FormMi.__formDOM[value.equalTo].rules;
+						temp_password_input.confirm = object.name;
+						temp_password_input.confirmObject = object;
+						if (!!FormMi.__formDOM[object.equalTo]) {
+							object.rules = FormMi.__formDOM[object.equalTo].rules;
 						} else {
-							console.warn(new Error(value.equalTo + 'input表单不存在!'))
+							console.warn(new Error(object.equalTo + 'input表单不存在!'))
 						}
 					}
-					FormMi.bindInput(FormMi, FormMi.__formDOM[value.name], value)
-				} else if (value.element.type === 'checkbox') { //单个多选
-					value.state = false;
-					value.element = FormMi.__formDOM[value.name];
-					// console.log('value.element:', value.element);
-
-					$(value.element).on('click', function (e) {
-						// console.log('this.checked:', this);
-						// console.log('this.checked:', this.checked);
-						value.state = this.checked;
-						//this.checked = !this.checked;
-						//value.state = this.checked;
-						console.log(value.state);
-						//this.checked ? FormMi.setInputSuccessClass(this) : FormMi.setInputErrorClass(this);
-						this.checked ? FormMi.hideElement(value.messageElement) : FormMi.showElement(value.messageElement);
-						//console.log(this.value);
-						// return false;
-					});
-
+					FormMi.bindInput(FormMi, FormMi.__formDOM[object.name], object)
+				} else {
+					//这里处理 checkbox/radio/select 类型
+					//单个多选
+					object.element = FormMi.__formDOM[object.name];
+					// console.log('object.element:', object.element);
+					if (object.type === 'checkbox' || object.type === 'radio') {
+						$(object.element).on('click', function (e) {
+							object.state = this.checked;
+							// console.log(object.state);
+							// console.log(this.object);
+							this.checked ? FormMi.hideElement(object.messageElement) : FormMi.showElement(object.messageElement);
+						});
+					} else if (object.type === 'select') {
+						$(object.element).on('change', function (e) {
+							console.log(this.value);
+							if (this.value !== null && typeof this.value !== 'undefined') {
+								FormMi.hideElement(object.messageElement)
+							} else {
+								FormMi.showElement(object.messageElement);
+							}
+						})
+					}
 				}
 
-
 				//判断是否为 required 必填,默认是的话,默认创建 创建 message
-				if (value.required) {
-					value.message = value.message ? value.message : $.extend({}, value.message, FormMi.__message);
+				if (object.required) {
+					object.message = object.message ? object.message : $.extend({}, object.message, FormMi.__message);
 					//插入元素
-					// if (value.message) {
-					interElement = FormMi.createElement(value.message);
-					FormMi.interElement(value.parentNode, interElement);
-					value.messageElement = interElement;
+					// if (object.message) {
+					interElement = FormMi.createElement(object.message);
+					FormMi.interElement(object.parentNode, interElement);
+					object.messageElement = interElement;
 					interElement = null;
 					// }
 				}
 
 
-				// console.log('isInput',!!FormMi.isInput(value.element.type));
+				// console.log('isInput',!!FormMi.isInput(object.element.type));
 
 			}
 		});
@@ -460,18 +465,18 @@ FormMi.prototype = {
 	interElement: function (parentElement, newElement, referenceElement) {
 		parentElement.insertBefore(newElement, referenceElement || null);
 	},
-	createElement: function (message) {
-		var element = document.createElement(message.element.toLowerCase());
-		element.className = message.class;
+	createElement: function (messageObject) {
+		var element = document.createElement(messageObject.element.toLowerCase());
+		element.className = messageObject.class;
 		element.style.display = 'none';
-		element.innerHTML = message.required ? message.required : this.__message.required;
+		element.innerHTML = messageObject.required ? messageObject.required : this.__message.required;
 		return element;
 	},
-	setMessageStateForRules:function (boolean,object) {
-		return boolean ? this.hideElement(object.messageElement) : this.showElement(object.messageElement,object.message.rules);
+	setMessageStateForRules: function (boolean, object) {
+		return boolean ? this.hideElement(object.messageElement) : this.showElement(object.messageElement, object.message.rules);
 	},
-	setMessageStateForRequired:function ( boolean , object ) {
-		boolean ? this.hideElement(object.messageElement) : this.showElement(object.messageElement,object.message.required);
+	setMessageStateForRequired: function (boolean, object) {
+		boolean ? this.hideElement(object.messageElement) : this.showElement(object.messageElement, object.message.required);
 	},
 	showElement: function (element, message) {
 		element.style.display = 'block';
@@ -485,7 +490,7 @@ FormMi.prototype = {
 			element.innerHTML = message;
 		}
 	},
-	checkNode: function (node) {
+	isNode: function (node) {
 		if (node !== null && node.nodeType === 1) {
 			return node;
 		}
@@ -495,7 +500,6 @@ FormMi.prototype = {
 	setDate: function (object) {
 		if (!$.isEmptyObject(object)) {
 			this.__sendData = object;
-			// this.__sendData = $.extend({},this.__sendData,object)
 		}
 		console.log('this.__sendData:', this.__sendData);
 	},
@@ -505,7 +509,7 @@ FormMi.prototype = {
 		$.each(FormMi.__rules, function (index, object) {
 			if (object.name === parameter.name) {
 				object.state = parameter.state;
-				if (object.type !== 'checkbox') {
+				if (!FormMi.isCheckBoxOrRadio(object)) {
 					FormMi.setInputClass(object)
 				}
 			}
@@ -527,6 +531,12 @@ FormMi.prototype = {
 		element.setAttribute('data-state', this.__errorClass);
 	},
 
+	/*
+	* check checkbox|radio
+	* */
+	isCheckBoxOrRadio:function (element) {
+		return ( /radio|checkbox/i ).test( element.type );
+	},
 	getErrorInput: function () {
 		var FormMi = this;
 		var errorInput = [];
@@ -534,14 +544,28 @@ FormMi.prototype = {
 		$.each(FormMi.__rules, function (index, object) {
 			if (object.required && !object.state) {
 				errorInput.push(object);
-				if (object.type !== 'checkbox' && object.type !== 'radio') {
-					FormMi.setInputClass(object);
-				}
-				if (object.messageElement) {
+				// if (object.type !== 'checkbox' && object.type !== 'radio') {
+				// 	FormMi.setInputClass(object);
+				// 	FormMi.showElement(object.messageElement);
+				// }
+				if (object.type === 'select') {
+					if (object.element.value) {
+						FormMi.hideElement(object.messageElement)
+					} else {
+						FormMi.showElement(object.messageElement);
+					}
+				} else {
+					if (!FormMi.isCheckBoxOrRadio(object)) {
+						FormMi.setInputClass(object);
+					}
 					FormMi.showElement(object.messageElement);
 				}
+				// if (object.messageElement) {
+				// 	FormMi.showElement(object.messageElement);
+				// }
 			} else if (!object.required && object.rules) { //不是必填,但写了正则,希望可以检验数据
-				if (object.type !== 'checkbox' && object.type !== 'radio') {
+				// if (object.type !== 'checkbox' && object.type !== 'radio') {
+				if (!FormMi.isCheckBoxOrRadio(object)) {
 					FormMi.setInputClass(object);
 				}
 			}
@@ -591,8 +615,6 @@ FormMi.prototype = {
 	},
 	getSelectValue: function (element) {
 		var value;
-
-		//this.__formDOM[]
 		value = element.value;
 		console.log(value);
 		return value;
