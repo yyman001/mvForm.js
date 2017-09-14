@@ -102,7 +102,73 @@
 		            required:'必填',
 		            rules:'请输入2-20个字符'
 	            }
-            }
+            },
+            {
+            	name:'form__cp_name',
+	            required: true,
+	            rules: /\w{2,20}/,
+	            message:{
+		            required:'必填',
+		            rules:'请输入2-20个字符'
+	            }
+            },
+            {
+            	name:'form__user',
+	            required: true,
+	            rules: /\w{2,20}/,
+	            message:{
+		            required:'必填',
+		            rules:'请输入2-20个字符'
+	            }
+            },
+            {
+            	name:'form__url',
+	            required: true,
+	            rules: /\w{2,20}/,
+	            message:{
+		            required:'必填',
+		            rules:'请输入2-20个字符'
+	            }
+            },
+            {
+            	name:'form__mobile',
+	            required: true,
+	            rules: /\w{2,20}/,
+	            message:{
+		            required:'必填',
+		            rules:'请输入2-20个字符'
+	            }
+            },
+            {
+            	name:'form__code',
+	            required: true,
+	            rules: /\w{2,20}/,
+	            message:{
+		            required:'必填',
+		            rules:'请输入2-20个字符'
+	            }
+            },
+            {
+            	name:'form__passwords',
+	            required: true,
+	            rules: /\w{2,20}/,
+	            message:{
+		            required:'必填',
+		            rules:'请输入2-20个字符'
+	            }
+            },
+            {
+            	name:'form__r_passwords',
+	            equalTo:'form__passwords'
+            },
+		    {
+			    name:'form__auto',
+			    required: true,
+			    message:{
+				    required:'必填'
+			    }
+		    }
+
         ]
     })
 
