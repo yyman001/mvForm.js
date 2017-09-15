@@ -557,6 +557,17 @@ FormMi.prototype = {
 			}
 		});
 	},
+
+	/**
+	 *
+	 * @param rules_name 规则名称
+	 * @param rules 规则正则
+	 */
+	addRules:function (rules_name,rules) {
+		if(rules_name && rules){
+			this.__rulesList[rules_name] = rules;
+		}
+	},
 	/**
 	 *
 	 * @param object
