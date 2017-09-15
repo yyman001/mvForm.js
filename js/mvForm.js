@@ -125,7 +125,7 @@ FormMi.prototype = {
 						}
 
 						if (typeof option.callback === 'function') {
-							option.callback(element, option.state);
+							option.callback(option, option.state);
 						}
 
 						console.log('blur:', option.state, element.name);
@@ -147,7 +147,7 @@ FormMi.prototype = {
 							}
 
 							if (typeof option.callback === 'function') {
-								option.callback(element, option.state);
+								option.callback(option, option.state);
 							}
 
 						} else {
@@ -171,7 +171,7 @@ FormMi.prototype = {
 							}
 
 							if (typeof option.callback === 'function') {
-								option.callback(element, option.state);
+								option.callback(option, option.state);
 							}
 						} else {
 							//$(element).attr('data-state','');
@@ -219,7 +219,7 @@ FormMi.prototype = {
 						}
 
 						if (typeof option.callback === 'function') {
-							option.callback(element, option.state);
+							option.callback(option, option.state);
 						}
 
 						console.log('blur:', option.state, element.name);
@@ -255,7 +255,7 @@ FormMi.prototype = {
 							}
 
 							if (typeof option.callback === 'function') {
-								option.callback(element, option.state);
+								option.callback(option, option.state);
 							}
 
 						} else {
@@ -292,7 +292,7 @@ FormMi.prototype = {
 							}
 
 							if (typeof option.callback === 'function') {
-								option.callback(element, option.state);
+								option.callback(option, option.state);
 							}
 						} else {
 							//$(element).attr('data-state','');
@@ -543,7 +543,7 @@ FormMi.prototype = {
 		console.log('this.__sendData:', this.__sendData);
 	},
 	/**
-	 * 外部改变样式函数
+	 * 外部调用0改变样式函数
 	 * @param parameter
 	 */
 	setDomState: function (parameter) {
@@ -557,7 +557,18 @@ FormMi.prototype = {
 			}
 		});
 	},
-
+	/**
+	 * 回调中是用的改变方法,效率比外部方法高
+	 * @param object
+	 * @param state
+	 */
+	setTargetDomState:function (object,state) {
+		console.log('setTargetDomState:', object, state);
+		if(this.isTextOrPassWord(object)){
+			object.state = !!state; //防止state不存入报错
+			this.setInputClass(object)
+		}
+	},
 	/**
 	 *
 	 * @param rules_name 规则名称
