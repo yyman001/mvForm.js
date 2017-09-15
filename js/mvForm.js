@@ -551,7 +551,7 @@ FormMi.prototype = {
 		$.each(FormMi.__rules, function (index, object) {
 			if (object.name === parameter.name) {
 				object.state = parameter.state;
-				if (!FormMi.isCheckBoxOrRadio(object)) {
+				if (FormMi.isTextOrPassWord(object)) {
 					FormMi.setInputClass(object)
 				}
 			}
