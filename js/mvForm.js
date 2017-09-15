@@ -91,87 +91,87 @@ FormMi.prototype = {
 	 *
 	 * @param FormMi
 	 * @param element
-	 * @param option
+	 * @param object
 	 */
-	bindInput: function (FormMi, element, option) {
-		var rules = FormMi.bindRules(option);
+	bindInput: function (FormMi, element, object) {
+		var rules = FormMi.bindRules(object);
 		//正则
-		// if (option.rules && typeof option.rules === 'string' && typeof this.__rulesList[option.rules] !== 'undefined') {
-		// 	rules = this.__rulesList[option.rules];
+		// if (object.rules && typeof object.rules === 'string' && typeof this.__rulesList[object.rules] !== 'undefined') {
+		// 	rules = this.__rulesList[object.rules];
 		// } else {
 		// 	//其他,字符串
-		// 	rules = option.rules === null ? '' : option.rules;
+		// 	rules = object.rules === null ? '' : object.rules;
 		// }
 		var passElement = null;
 		var passElementConfirm = null;
 		// console.log('rules:', rules,element);
-		if (option.equalTo) {
-			passElement = FormMi.__formDOM[option.equalTo];
+		if (object.equalTo) {
+			passElement = FormMi.__formDOM[object.equalTo];
 			// console.log('passElement:', passElement);
 			$(element).on(
 				{
 					blur: function (e) {
-						// if (!option.change || !option.state) {
-						FormMi.setInputState(passElement.getAttribute('data-state') === FormMi.__successClass && element.value === passElement.value, option);
-						FormMi.setTargetState(option);
+						// if (!object.change || !object.state) {
+						FormMi.setInputState(passElement.getAttribute('data-state') === FormMi.__successClass && element.value === passElement.value, object);
+						FormMi.setTargetState(object);
 						// }
 
-						if (option.state && typeof option.success === 'function') {
-							option.success(element)
+						if (object.state && typeof object.success === 'function') {
+							object.success(element)
 						}
 
-						if (!option.state && typeof option.fail === 'function') {
-							option.fail(element)
+						if (!object.state && typeof object.fail === 'function') {
+							object.fail(element)
 						}
 
-						if (typeof option.callback === 'function') {
-							option.callback(option, option.state);
+						if (typeof object.callback === 'function') {
+							object.callback(object, object.state);
 						}
 
-						console.log('blur:', option.state, element.name);
+						console.log('blur:', object.state, element.name);
 					},
 					focus: function (e) {
-						if (option.focus) {
+						if (object.focus) {
 
-							// if (!option.change || !option.state) {
-							FormMi.setInputState(passElement.getAttribute('data-state') === FormMi.__successClass && element.value === passElement.value, option);
-							FormMi.setTargetState(option);
+							// if (!object.change || !object.state) {
+							FormMi.setInputState(passElement.getAttribute('data-state') === FormMi.__successClass && element.value === passElement.value, object);
+							FormMi.setTargetState(object);
 							// }
 
-							if (option.state && typeof option.success === 'function') {
-								option.success(element)
+							if (object.state && typeof object.success === 'function') {
+								object.success(element)
 							}
 
-							if (!option.state && typeof option.fail === 'function') {
-								option.fail(element)
+							if (!object.state && typeof object.fail === 'function') {
+								object.fail(element)
 							}
 
-							if (typeof option.callback === 'function') {
-								option.callback(option, option.state);
+							if (typeof object.callback === 'function') {
+								object.callback(object, object.state);
 							}
 
 						} else {
-							if (!option.state) {
+							if (!object.state) {
 								$(element).attr('data-state', '');
 							}
 						}
 					},
 					keyup: function (e) {
-						if (option.change) {
+						if (object.change) {
 							console.log(passElement.getAttribute('data-state') === FormMi.__successClass, element.value === passElement.value);
-							FormMi.setInputState(passElement.getAttribute('data-state') === FormMi.__successClass && element.value === passElement.value, option);
-							FormMi.setTargetState(option);
+							FormMi.setInputState(passElement.getAttribute('data-state') === FormMi.__successClass && element.value === passElement.value, object);
+							FormMi.setTargetState(object);
 
-							if (option.state && typeof option.success === 'function') {
-								option.success(element)
+							if (object.state && typeof object.success === 'function') {
+								object.success(element)
 							}
 
-							if (!option.state && typeof option.fail === 'function') {
-								option.fail(element)
+							if (!object.state && typeof object.fail === 'function') {
+								object.fail(element)
 							}
 
-							if (typeof option.callback === 'function') {
-								option.callback(option, option.state);
+							if (typeof object.callback === 'function') {
+								object.callback(object, object.state);
 							}
 						} else {
 							//$(element).attr('data-state','');
@@ -184,115 +184,115 @@ FormMi.prototype = {
 			$(element).on(
 				{
 					blur: function (e) {
-						// if (option.required && !option.state) {
-						if (option.required) {//必填
-							if (!option.change || !option.state) {
+						// if (object.required && !object.state) {
+						if (object.required) {//必填
+							if (!object.change || !object.state) {
 
 								if (this.value && this.value) { //有验证表达式
-									FormMi.setInputState(this.value.match(rules), option);
-									FormMi.setMessageStateForRules(this.value.match(rules), option);
+									FormMi.setInputState(this.value.match(rules), object);
+									FormMi.setMessageStateForRules(this.value.match(rules), object);
 									console.log('rules');
 								} else {
 									console.log('vvv');
-									FormMi.setInputState($.trim(this.value), option);
-									FormMi.setMessageStateForRequired(this.value.match(rules), option)
+									FormMi.setInputState($.trim(this.value), object);
+									FormMi.setMessageStateForRequired(this.value.match(rules), object)
 								}
 
-								FormMi.setTargetState(option);
-								// option.state = $(element).attr('data-state') === FormMi.__successClass ? !!1 : !!0;
+								FormMi.setTargetState(object);
+								// object.state = $(element).attr('data-state') === FormMi.__successClass ? !!1 : !!0;
 							}
 
-							if (element.type === 'password' && $.trim(option.confirmObject.element.value)) {
-								FormMi.setInputState(element.value === option.confirmObject.element.value, option.confirmObject);
-								FormMi.setTargetState(option.confirmObject);
+							if (element.type === 'password' && $.trim(object.confirmObject.element.value)) {
+								FormMi.setInputState(element.value === object.confirmObject.element.value, object.confirmObject);
+								FormMi.setTargetState(object.confirmObject);
 							}
 						} else { //非必填
 
 						}
 
-						if (option.state && typeof option.success === 'function') {
-							option.success(element)
+						if (object.state && typeof object.success === 'function') {
+							object.success(element)
 						}
 
-						if (!option.state && typeof option.fail === 'function') {
-							option.fail(element)
+						if (!object.state && typeof object.fail === 'function') {
+							object.fail(element)
 						}
 
-						if (typeof option.callback === 'function') {
-							option.callback(option, option.state);
+						if (typeof object.callback === 'function') {
+							object.callback(object, object.state);
 						}
 
-						console.log('blur:', option.state, element.name);
+						console.log('blur:', object.state, element.name);
 					},
 					focus: function (e) {
-						if (option.focus) {
-							if (option.required) {//必填
-								if (!option.change || !option.state) {
+						if (object.focus) {
+							if (object.required) {//必填
+								if (!object.change || !object.state) {
 									if (this.value && rules) { //有验证表达式
-										FormMi.setInputState(this.value.match(rules), option);
-										FormMi.setMessageStateForRules(this.value.match(rules), option);
+										FormMi.setInputState(this.value.match(rules), object);
+										FormMi.setMessageStateForRules(this.value.match(rules), object);
 									} else {
-										FormMi.setInputState($.trim(this.value), option);
-										FormMi.setMessageStateForRequired(this.value.match(rules), option)
+										FormMi.setInputState($.trim(this.value), object);
+										FormMi.setMessageStateForRequired(this.value.match(rules), object)
 									}
-									FormMi.setTargetState(option);
+									FormMi.setTargetState(object);
 								}
 
-								if (element.type === 'password' && $.trim(option.confirmObject.element.value)) {
-									FormMi.setInputState(element.value === option.confirmObject.element.value, option.confirmObject);
-									FormMi.setTargetState(option.confirmObject);
+								if (element.type === 'password' && $.trim(object.confirmObject.element.value)) {
+									FormMi.setInputState(element.value === object.confirmObject.element.value, object.confirmObject);
+									FormMi.setTargetState(object.confirmObject);
 								}
 
 							}
 
 
-							if (option.state && typeof option.success === 'function') {
-								option.success(element)
+							if (object.state && typeof object.success === 'function') {
+								object.success(element)
 							}
 
-							if (!option.state && typeof option.fail === 'function') {
-								option.fail(element)
+							if (!object.state && typeof object.fail === 'function') {
+								object.fail(element)
 							}
 
-							if (typeof option.callback === 'function') {
-								option.callback(option, option.state);
+							if (typeof object.callback === 'function') {
+								object.callback(object, object.state);
 							}
 
 						} else {
-							if (!option.state) {
+							if (!object.state) {
 								$(element).attr('data-state', '');
 							}
 						}
 					},
 					keyup: function (e) {
-						if (option.change && option.required) {
+						if (object.change && object.required) {
 
 							// if ($.trim(this.value)) {
 							if (this.value && rules) { //有验证表达式
-								FormMi.setInputState(this.value.match(rules), option);
-								FormMi.setMessageStateForRules(this.value.match(rules), option);
+								FormMi.setInputState(this.value.match(rules), object);
+								FormMi.setMessageStateForRules(this.value.match(rules), object);
 							} else {
-								FormMi.setInputState($.trim(this.value), option);
-								FormMi.setMessageStateForRequired(this.value.match(rules), option)
+								FormMi.setInputState($.trim(this.value), object);
+								FormMi.setMessageStateForRequired(this.value.match(rules), object)
 							}
-							FormMi.setTargetState(option);
+							FormMi.setTargetState(object);
 							// }
 
-							if (element.type === 'password' && $.trim(option.confirmObject.element.value)) {
-								FormMi.setInputState(element.value === option.confirmObject.element.value, option.confirmObject);
-								FormMi.setTargetState(option.confirmObject);
+							if (element.type === 'password' && $.trim(object.confirmObject.element.value)) {
+								FormMi.setInputState(element.value === object.confirmObject.element.value, object.confirmObject);
+								FormMi.setTargetState(object.confirmObject);
 							}
 
-							if (option.state && typeof option.success === 'function') {
-								option.success(element)
+							if (object.state && typeof object.success === 'function') {
+								object.success(element)
 							}
 
-							if (!option.state && typeof option.fail === 'function') {
-								option.fail(element)
+							if (!object.state && typeof object.fail === 'function') {
+								object.fail(element)
 							}
 
-							if (typeof option.callback === 'function') {
-								option.callback(option, option.state);
+							if (typeof object.callback === 'function') {
+								object.callback(object, object.state);
 							}
 						} else {
 							//$(element).attr('data-state','');
