@@ -1,45 +1,75 @@
 /**
- * Created by Administrator on 2017/9/4.
+ *  FormMi1.0
+ *
+ eg:
+ new FormMi({
+  form: '#form_forget',
+  rules:[{
+    {
+				name: 'name',
+                dataFieldName:'user_name', //发送ajax的字段名
+				required: true,
+				//rules: /\w{2,20}/,
+				focus: false,//获得焦点验证=>默认值
+				//change: false, //实时验证
+                ajaxUrl:'https://www.easy-mock.com/mock/59084bef7a878d73716e6641/all/check_user_name',
+                message:{
+	                required:'必填',
+	                rules:'请输入2-20个字符',
+                    class:'label',
+	                element:'span' //默认
+                },
+				success: function (ele) {
+				},
+				fail: function (ele) {
+				},
+				callback: function (state) {
+				}
+			}
+  }]
+ })
+
+ 改变状态(外部)
+ FormMi.setDomState({name:'name',state:1});
+ 改变状态(内部)
+ FormMi.setTargetDomState(object, url.test(object.element.value));
  */
 
 
-
 function FormMi(option) {
-	this.__option = null; // 传入参数
-	this.__$formDOM = null;  //表单元素
+	this.__option = {
+		method: 'post',
+		formType: 'ajax',
+		action: '',
+		submitBtn: '',
+		errorClass: 'errorClass',
+		successClass: 'successClass'
+	}; // 传入参数
+	this.__$formDOM = null;  //jq表单元素
 	this.__formDOM = null;  //表单元素
-	this.__action = '';
-	this.__formType = 'ajax'; // ajax => / form => 表单提交
-	this.__method = 'post';
-	this.__$submitDOM = null;
-	this.__$formChildDOM = []; //表单的全部子input 元素
 	this.__rules = null;
 	this.__state = false; //表单状态
-	this.__errorClass = 'errorClass';
-	this.__successClass = 'successClass';
-	this.__elementState = false; //状态
 	this.__sendData = null; //外部添加数据
-	this.__inputType = {
-		text: 1,
-		password: 1
-	};
 	//提示错误信息对象
 	this.__message = {
-		required: '__必填选项'
-		, rules: ''
+		required: '必填选项'
+		, rules: '正则提示信息'
 		, class: 'label'
 		, element: 'span'
 	};
 	this.__rulesList = {
 		email: /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/
-		, mobile: /^(((13[0-9]{1})|(15[0-9]{1}))+\d{8})$/
-		,url: /^(?:(?:(?:https?|ftp):)?\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})).?)(?::\d{2,5})?(?:[/?#]\S*)?$/i
-		,dateISO:/^\d{4}[\/\-](0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])$/
-		,digits:/^\d+$/
-};
+		,
+		mobile: /^(((13[0-9]{1})|(15[0-9]{1}))+\d{8})$/
+		,
+		url: /^(?:(?:(?:https?|ftp):)?\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})).?)(?::\d{2,5})?(?:[/?#]\S*)?$/i
+		,
+		dateISO: /^\d{4}[\/\-](0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])$/
+		,
+		digits: /^\d+$/
+	};
 	return this.init(option);
 }
-
 
 FormMi.prototype = {
 	constructor: FormMi,
@@ -49,21 +79,13 @@ FormMi.prototype = {
 			console.log(new Error('参入参数有误!'));
 			return;
 		}
-		// console.log('option:', option);
-		this.__option = $.extend({}, this.__option, option);
+		this.__option = $.extend(true, this.__option, option);
 		this.__$formDOM = !!this.__option.form ? $(this.__option.form) : $(document);
-		this.__$submitDOM = !!this.__option.submitBtn ? $(this.__option.submitBtn) : null;
-		this.__formType = this.__option.formType === 'form' ? 'form' : 'ajax';
-		// this.__rules = $.extend({}, this.__rules, this.__option.rules);
-		this.__action = this.__option.action;
-		this.__rules = this.__option.rules;
 		this.__formDOM = this.__$formDOM[0];
-		this.getChildDOM();
+		this.__rules = this.__option.rules;
 		this.bindEvent();
 	},
-	getChildDOM: function () {
-		this.__$formChildDOM = this.__$formDOM.find('input');
-	},
+
 	/**
 	 *
 	 * @param option
@@ -84,9 +106,6 @@ FormMi.prototype = {
 		return rules;
 	},
 
-	// isInput: function (type) {
-	// 	return !!this.__inputType[type];
-	// },
 	/**
 	 *
 	 * @param FormMi
@@ -413,35 +432,18 @@ FormMi.prototype = {
 					interElement = null;
 					// }
 				}
-
-
 				// console.log('isInput',!!FormMi.isInput(object.element.type));
 
 			}
 		});
 
-		/*$.each(FormMi.__$formChildDOM, function (index, element) {
-		 $(element).on({
-		 blur: function (e) {
-		 console.log('失去焦点', this.name);
-		 },
-		 focus: function (e) {
-		 console.log('获得焦点', this.name);
-		 }
-		 })
-		 });*/
-
-		/*FormMi.__$submitDOM.on('click', function (e) {
-		 console.log('********************');
-		 });*/
-
 		FormMi.__$formDOM.on('submit', function (e) {
-			console.log("this.__formType", FormMi.__formType);
+			console.log("this.__formType", FormMi.__option.formType);
 
 			// FormMi.__state = !errorLength.length;
 			FormMi.__state = FormMi.checkInputState();
 
-			if (FormMi.__formType === 'ajax') {
+			if (FormMi.__option.formType === 'ajax') {
 				e.preventDefault();
 				//状态全部通过
 				if (FormMi.__state) {
@@ -562,9 +564,9 @@ FormMi.prototype = {
 	 * @param object
 	 * @param state
 	 */
-	setTargetDomState:function (object,state) {
+	setTargetDomState: function (object, state) {
 		console.log('setTargetDomState:', object, state);
-		if(this.isTextOrPassWord(object)){
+		if (this.isTextOrPassWord(object)) {
 			object.state = !!state; //防止state不存入报错
 			this.setInputClass(object)
 		}
@@ -574,8 +576,8 @@ FormMi.prototype = {
 	 * @param rules_name 规则名称
 	 * @param rules 规则正则
 	 */
-	addRules:function (rules_name,rules) {
-		if(rules_name && rules){
+	addRules: function (rules_name, rules) {
+		if (rules_name && rules) {
 			this.__rulesList[rules_name] = rules;
 		}
 	},
@@ -584,7 +586,7 @@ FormMi.prototype = {
 	 * @param object
 	 */
 	setTargetState: function (object) {
-		object.state = object.element.getAttribute('data-state') === this.__successClass ? !!1 : !!0;
+		object.state = object.element.getAttribute('data-state') === this.__option.successClass ? !!1 : !!0;
 	},
 	/**
 	 *
@@ -592,36 +594,36 @@ FormMi.prototype = {
 	 * @param object
 	 */
 	setInputState: function (boolean, object) {
-		object.element.setAttribute('data-state', boolean ? this.__successClass : this.__errorClass);
+		object.element.setAttribute('data-state', boolean ? this.__option.successClass : this.__option.errorClass);
 	},
 	/**
 	 *
 	 * @param object
 	 */
 	setInputClass: function (object) {
-		object.element.setAttribute('data-state', object.state ? this.__successClass : this.__errorClass);
+		object.element.setAttribute('data-state', object.state ? this.__option.successClass : this.__option.errorClass);
 	},
 	/**
 	 *
 	 * @param element
 	 */
 	setInputSuccessClass: function (element) {
-		element.setAttribute('data-state', this.__successClass);
+		element.setAttribute('data-state', this.__option.successClass);
 	},
 	/**
 	 *
 	 * @param element
 	 */
 	setInputErrorClass: function (element) {
-		element.setAttribute('data-state', this.__errorClass);
+		element.setAttribute('data-state', this.__option.errorClass);
 	},
 	/**
 	 *
 	 * @param date
 	 * @returns {boolean}
 	 */
-	isDate:function (date) {
-		return !/Invalid|NaN/.test( new Date( date ).toString() );
+	isDate: function (date) {
+		return !/Invalid|NaN/.test(new Date(date).toString());
 	},
 	/**
 	 *
@@ -805,7 +807,7 @@ FormMi.prototype = {
 
 		$.ajax({
 			type: "POST",
-			url: this.__action,
+			url: this.__option.action,
 			data: data,
 			cache: false,
 			dataType: "json",
@@ -828,7 +830,4 @@ FormMi.prototype = {
 		}
 	}
 };
-
-
-// var v = new FormMi();
 
